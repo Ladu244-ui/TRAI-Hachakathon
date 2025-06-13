@@ -81,10 +81,23 @@
             animation: fadeIn 0.5s ease-out;
         }
 
-        .sidebar-menu li:hover {
-            transform: translateX(5px);
-            transition: transform 0.2s ease;
+        #sidebar {
+            width: var(--sidebar-collapsed-width);
         }
+
+        #sidebar:hover {
+            width: var(--sidebar-width);
+            padding: 1.5rem;
+        }
+
+        #sidebar .sidebar-label {
+            display: none;
+        }
+
+        #sidebar:hover .sidebar-label {
+            display: inline-block;
+        }
+
 
         .card:hover {
             transform: translateY(-8px) scale(1.02);
@@ -113,72 +126,86 @@
 
 <body class="flex flex-col min-h-screen">
     <!-- Header -->
-    <header class="glass w-full p-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center space-x-4">
-            <button id="toggleSidebar" class="text-white focus:outline-none">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-            <h1 class="text-xl font-semibold">Guardrail Sentinel</h1>
+    <header
+        class="glass w-full px-8 py-4 flex justify-between items-center sticky top-0 z-50 rounded-2xl shadow-lg backdrop-blur-md border border-white/10">
+        <div class="flex items-center gap-5">
+            <h1 class="text-2xl font-semibold text-white tracking-wide select-none">Guardrail Sentinel</h1>
         </div>
-        <div class="flex items-center space-x-4">
+
+        <div class="flex items-center gap-6">
             <div class="relative">
                 <input type="text" placeholder="Search..."
-                    class="glass rounded-full py-2 px-4 pl-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]">
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    class="glass w-64 pl-11 pr-4 py-2 rounded-full text-white bg-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition duration-200" />
+                <i
+                    class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-base pointer-events-none"></i>
             </div>
+
             <div class="relative group">
                 <img src="../../assets/GuarSentinel_Logo.png" alt="User Avatar"
-                    class="w-10 h-10 rounded-full border-2 border-[var(--primary-color)] cursor-pointer">
+                    class="w-11 h-11 rounded-full border-2 border-[var(--primary-color)] object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105" />
             </div>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
+    <!-- Layout -->
+    <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <aside id="sidebar"
-            class="glass w-[var(--sidebar-width)] p-6 flex flex-col transition-all duration-[var(--transition-speed)]"
+            class="glass group/sidebar hover:w-[var(--sidebar-width)] w-[var(--sidebar-collapsed-width)] min-h-screen p-4 hover:p-6 flex flex-col transition-all duration-[var(--transition-speed)] rounded-r-3xl shadow-md backdrop-blur-lg border-r border-white/10 overflow-hidden"
             aria-label="Main Navigation">
-            <div class="logo mb-8 text-center">
-                <img src="../../assets/GuarSentinel_Logo.png" alt="Guardrail Sentinel Logo" class="w-24 mx-auto">
+
+            <div class="logo mb-10 text-center">
+                <img src="../../assets/GuarSentinel_Logo.png" alt="Guardrail Sentinel Logo"
+                    class="w-16 mx-auto transition-all duration-300 group-hover/sidebar:w-24" />
             </div>
+
             <nav class="sidebar-menu flex-1">
                 <ul class="space-y-2">
                     <li data-section="pages/dashboard.html"
-                        class="active rounded-xl p-3 flex items-center space-x-3 cursor-pointer bg-[rgba(255,255,255,0.2)]">
-                        <i class="fas fa-tachometer-alt text-xl"></i>
-                        <span>Dashboard</span>
+                        class="active flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer bg-white/20 text-white font-medium hover:bg-white/25 transition-all duration-200">
+                        <i class="fas fa-tachometer-alt text-lg"></i>
+                        <span
+                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Dashboard</span>
                     </li>
                     <li data-section="pages/scan.html"
-                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
-                        <i class="fas fa-bug-slash text-xl"></i>
-                        <span>Run Scan</span>
+                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <i class="fas fa-bug-slash text-lg"></i>
+                        <span
+                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Run
+                            Scan</span>
                     </li>
                     <li data-section="pages/reports.html"
-                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
-                        <i class="fas fa-file-shield text-xl"></i>
-                        <span>Reports</span>
+                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <i class="fas fa-file-shield text-lg"></i>
+                        <span
+                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Reports</span>
                     </li>
                     <li data-section="pages/history.html"
-                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
-                        <i class="fas fa-clock-rotate-left text-xl"></i>
-                        <span>Scan History</span>
+                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <i class="fas fa-clock-rotate-left text-lg"></i>
+                        <span
+                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Scan
+                            History</span>
                     </li>
                     <li data-section="pages/settings.html"
-                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
-                        <i class="fas fa-gear text-xl"></i>
-                        <span>Settings</span>
+                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <i class="fas fa-gear text-lg"></i>
+                        <span
+                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Settings</span>
                     </li>
                 </ul>
             </nav>
-
         </aside>
 
+
         <!-- Main Content -->
-        <main class="flex-1 p-8 overflow-y-auto">
-            <div class="content fade-in glass rounded-2xl p-8">
-            </div>
+        <main class="flex-1 overflow-y-auto bg-gradient-to-b from-white/5 to-transparent p-8">
+            <section class="glass rounded-2xl p-8 shadow-lg min-h-[80vh] border border-white/10 content">
+                <!-- Dynamic content loads here -->
+            </section>
         </main>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
