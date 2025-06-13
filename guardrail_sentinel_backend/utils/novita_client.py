@@ -5,7 +5,7 @@ from openai import OpenAI
 
 load_dotenv()
 
-NOVITA_API_KEY = os.getenv("NOVITA_API_KEY")
+NOVITA_API_KEY = os.getenv("NOVITA_OPENAI_API_KEY")
 NOVITA_BASE_URL = "https://api.novita.ai/v3/openai"
 NOVITA_MODEL = "deepseek/deepseek-r1-0528"
 
