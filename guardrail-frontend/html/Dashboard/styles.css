@@ -15,7 +15,7 @@
 
 body {
   font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, #2a2a72 0%, #009ffd 74%);
+  background: linear-gradient(135deg, #000000 0%, #252626 74%);
   min-height: 100vh;
   display: flex;
   align-items: center;
