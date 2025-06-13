@@ -2,147 +2,292 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guard</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guardrail Sentinel Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+        :root {
+            --primary-color: #d71717;
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #252626 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Glassmorphism with water effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 10%, transparent 10%);
+            background-size: 50px 50px;
+            animation: waterFlow 20s linear infinite;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        @keyframes waterFlow {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-100%);
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .sidebar-menu li:hover {
+            transform: translateX(5px);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
 </head>
 
-<body>
-    <div class="container">
-        <aside class="sidebar">
-            <div class="logo">
-                <img src="assets/GuarSentinel_Logo.png" alt="GuarSentinel_Logo" />
+<body class="flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="glass w-full p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-4">
+            <button id="toggleSidebar" class="text-white focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-xl font-semibold">Guardrail Sentinel</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <input type="text" placeholder="Search..."
+                    class="glass rounded-full py-2 px-4 pl-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
-            <nav class="menu">
-                <ul>
-                    <li class="active">
-                        <a href="#">
-                            <i class="fas fa-home"></i>
-                            <span>Home</span>
-                        </a>
+            <div class="relative group">
+                <img src="https://via.placeholder.com/40" alt="User Avatar"
+                    class="w-10 h-10 rounded-full border-2 border-[var(--primary-color)] cursor-pointer">
+                <div
+                    class="absolute right-0 mt-2 w-48 glass rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="p-4">
+                        <p class="font-semibold">John Doe</p>
+                        <p class="text-sm text-gray-300">john.doe@example.com</p>
+                        <a href="#" class="block mt-2 text-sm hover:text-[var(--primary-color)]">Profile</a>
+                        <a href="#" class="block mt-1 text-sm hover:text-[var(--primary-color)]">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="glass w-[var(--sidebar-width)] p-6 flex flex-col transition-all duration-[var(--transition-speed)]"
+            aria-label="Main Navigation">
+            <div class="logo mb-8 text-center">
+                <img src="https://via.placeholder.com/150" alt="Test" class="w-24 mx-auto">
+            </div>
+            <nav class="sidebar-menu flex-1">
+                <ul class="space-y-2">
+                    <li data-section="pages/dashboard.html"
+                        class="active rounded-xl p-3 flex items-center space-x-3 cursor-pointer bg-[rgba(255,255,255,0.2)]">
+                        <i class="fas fa-tachometer-alt text-xl"></i>
+                        <span>Dashboard</span>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-compass"></i>
-                            <span>Explore</span>
-                        </a>
+                    <li data-section="pages/scan.html"
+                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
+                        <i class="fas fa-bug-slash text-xl"></i>
+                        <span>Run Scan</span>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-chart-simple"></i>
-                            <span>Analytics</span>
-                        </a>
+                    <li data-section="pages/reports.html"
+                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
+                        <i class="fas fa-file-shield text-xl"></i>
+                        <span>Reports</span>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-message"></i>
-                            <span>History</span>
-                        </a>
+                    <li data-section="pages/history.html"
+                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
+                        <i class="fas fa-clock-rotate-left text-xl"></i>
+                        <span>Scan History</span>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="fas fa-folder"></i>
-                            <span>Projects</span>
-                        </a>
+                    <li data-section="pages/settings.html"
+                        class="rounded-xl p-3 flex items-center space-x-3 cursor-pointer hover:bg-[rgba(255,255,255,0.15)]">
+                        <i class="fas fa-gear text-xl"></i>
+                        <span>Settings</span>
                     </li>
                 </ul>
             </nav>
+            <div class="mt-auto glass rounded-xl p-4 flex items-center">
+                <img src="https://via.placeholder.com/45" alt="User Avatar"
+                    class="w-12 h-12 rounded-full border-2 border-[rgba(255,255,255,0.3)] mr-3">
+                <div class="user-info">
+                    <h3 class="font-semibold">John Doe</h3>
+                    <p class="text-xs text-gray-300">Admin</p>
+                </div>
+            </div>
         </aside>
-        
-        <main class="content">
-            <div class="card-container">
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-check-circle"></i>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="content fade-in glass rounded-2xl p-8">
+                <h1 class="text-3xl font-bold mb-4">Dashboard</h1>
+                <p class="text-gray-300 mb-8">Welcome to the Guardrail Sentinel Dashboard. Monitor your system with
+                    ease.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card glass rounded-xl p-6 flex items-center transition-all">
+                        <div class="card-icon bg-[var(--primary-color)] rounded-lg p-3 mr-4">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3 class="text-xl font-semibold">245</h3>
+                            <p class="text-gray-300">Active Scans</p>
+                        </div>
                     </div>
-                    <div class="card-info">
-                        <h3>12</h3>
-                        <p>Completed Tasks</p>
+                    <div class="card glass rounded-xl p-6 flex items-center transition-all">
+                        <div class="card-icon bg-[var(--primary-color)] rounded-lg p-3 mr-4">
+                            <i class="fas fa-exclamation-triangle text-white"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3 class="text-xl font-semibold">17</h3>
+                            <p class="text-gray-300">Threats Detected</p>
+                        </div>
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="card-info">
-                        <h3>5</h3>
-                        <p>Pending Tasks</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="card-info">
-                        <h3>7</h3>
-                        <p>Active Projects</p>
+                    <div class="card glass rounded-xl p-6 flex items-center transition-all">
+                        <div class="card-icon bg-[var(--primary-color)] rounded-lg p-3 mr-4">
+                            <i class="fas fa-chart-line text-white"></i>
+                        </div>
+                        <div class="card-info">
+                            <h3 class="text-xl font-semibold">89%</h3>
+                            <p class="text-gray-300">System Health</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const menuItems = document.querySelectorAll('.menu li');
+            const menuItems = document.querySelectorAll('.sidebar-menu li');
+            const content = document.querySelector('.content');
+            const sidebar = document.getElementById('sidebar');
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            let isSidebarCollapsed = false;
+
+            const loadSection = async (file) => {
+                content.classList.remove('fade-in');
+                try {
+                    const res = await fetch(file);
+                    const html = await res.text();
+                    content.innerHTML = html;
+                    content.classList.add('fade-in');
+                } catch (err) {
+                    content.innerHTML = '<p class="text-red-400">Error loading content.</p>';
+                }
+            };
 
             menuItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    menuItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    menuItems.forEach(i => i.classList.remove('active', 'bg-[rgba(255,255,255,0.2)]'));
+                    item.classList.add('active', 'bg-[rgba(255,255,255,0.2)]');
 
                     const icon = item.querySelector('i');
                     icon.style.transform = 'scale(1.2)';
-                    setTimeout(() => {
-                        icon.style.transform = 'scale(1)';
-                    }, 200);
+                    setTimeout(() => icon.style.transform = 'scale(1)', 200);
+
+                    const section = item.getAttribute('data-section');
+                    loadSection(section);
                 });
             });
 
-            menuItems.forEach(item => {
-                item.addEventListener('mouseenter', (e) => {
-                    const highlight = document.createElement('div');
-                    highlight.classList.add('highlight');
-                    highlight.style.position = 'absolute';
-                    highlight.style.top = '0';
-                    highlight.style.left = '0';
-                    highlight.style.width = '100%';
-                    highlight.style.height = '100%';
-                    highlight.style.borderRadius = '16px';
-                    highlight.style.background = 'radial-gradient(circle at ' + (e.offsetX) + 'px ' + (e.offsetY) + 'px, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%)';
-                    highlight.style.pointerEvents = 'none';
-
-                    item.appendChild(highlight);
-
-                    setTimeout(() => {
-                        highlight.style.opacity = '0';
-                        setTimeout(() => {
-                            item.removeChild(highlight);
-                        }, 300);
-                    }, 500);
+            toggleSidebar.addEventListener('click', () => {
+                isSidebarCollapsed = !isSidebarCollapsed;
+                sidebar.style.width = isSidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)';
+                document.querySelectorAll('.sidebar-menu span, .user-info').forEach(el => {
+                    el.style.display = isSidebarCollapsed ? 'none' : 'block';
                 });
+                document.querySelector('.logo img').style.width = isSidebarCollapsed ? '40px' : '96px';
             });
 
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
+            // Default load dashboard
+            const defaultSection = document.querySelector('.sidebar-menu li.active')?.getAttribute('data-section');
+            if (defaultSection) loadSection(defaultSection);
 
-                    const rotateY = (x / rect.width - 0.5) * 10;
-                    const rotateX = (y / rect.height - 0.5) * -10;
-
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
-                });
-
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = 'translateY(0) scale(1)';
-                    card.style.transition = 'transform 0.5s ease';
-                });
+            // Dark mode toggle (optional feature)
+            const darkModeToggle = document.createElement('button');
+            darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            darkModeToggle.className = 'text-white p-2 rounded-full hover:bg-[rgba(255,255,255,0.1)]';
+            document.querySelector('header .flex:last-child').appendChild(darkModeToggle);
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                darkModeToggle.innerHTML = document.body.classList.contains('dark')
+                    ? '<i class="fas fa-sun"></i>'
+                    : '<i class="fas fa-moon"></i>';
             });
-        }); 
+        });
     </script>
 </body>
 
