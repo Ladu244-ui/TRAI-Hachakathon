@@ -169,15 +169,16 @@
         <aside id="sidebar"
             class="glass group/sidebar w-[var(--sidebar-collapsed-width)] p-3 hover:p-6 flex flex-col transition-all duration-[var(--transition-speed)] rounded-r-2xl shadow-md backdrop-blur-md border-r border-white/10"
             aria-label="Main Navigation">
-            <div class="logo mb-8 text-center">
+            <div class="logo mb-8 text-center cursor-pointer" onclick="location.reload()">
                 <img src="../../assets/GuarSentinel_Logo.png" alt="Guardrail Sentinel Logo"
                     class="w-14 mx-auto transition-all duration-300 group-hover/sidebar:w-20" />
             </div>
+
             <nav class="sidebar-menu flex-1">
                 <ul class="space-y-2">
                     <li
                         class="active flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer bg-white/20 text-white font-medium hover:bg-white/25 transition-all duration-200">
-                        <a href="#" data-section="pages/dashboard.html" class="flex items-center gap-3 w-full">
+                        <a onclick="location.reload()" class="flex items-center gap-3 w-full">
                             <i class="fas fa-tachometer-alt text-base"></i>
                             <span
                                 class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Dashboard</span>
@@ -209,7 +210,7 @@
                     </li>
                     <li
                         class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
-                        <a href="#" data-section="pages/pricing.html" class="flex items-center gap-3 w-full">
+                        <a data-section="../SubscriptionPlans/full-index.html" class="flex items-center gap-3 w-full">
                             <i class="fas fa-tags text-base"></i>
                             <span
                                 class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Pricing</span>

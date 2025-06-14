@@ -2,26 +2,35 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Access and download detailed security audit reports from Guardrail Sentinel.">
-    <title>Reports - Guardrail Sentinel</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Access and download detailed security audit reports from Guardrail Sentinel." />
+    <title>Security Reports – Guardrail Sentinel</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+            animation: fadeIn 0.7s ease both;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(12px);
             }
 
             to {
@@ -36,77 +45,96 @@
 
         .hover-scale:hover {
             transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-premium {
+            @apply bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition shadow-md hover:shadow-lg flex items-center gap-2;
         }
     </style>
 </head>
 
-<body class="bg-gray-900 text-white min-h-screen flex flex-col">
-    <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div class="fade-in glass rounded-2xl p-8">
-            <h2 class="text-3xl font-semibold mb-4">Security Audit Reports</h2>
-            <p class="text-gray-300 mb-6">Access and download detailed security audit reports. Each report includes
-                in-depth analysis, vulnerabilities identified, and actionable recommendations to enhance your system's
-                security.</p>
+<body class="bg-gradient-to-tr from-gray-900 via-black to-gray-800 text-white min-h-screen flex flex-col">
 
-            <div class="mt-6 space-y-4">
-                <div class="bg-white/10 rounded-xl px-6 py-4 hover-scale hover:bg-white/20 flex justify-between items-center"
-                    role="listitem" aria-label="June 2025 Report">
-                    <div>
-                        <span class="font-medium text-lg">Security Audit Report - June 2025</span>
-                        <span class="text-sm text-gray-400 ml-4">Completed on June 10, 2025</span>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="text-sm text-green-400 flex items-center">
-                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Completed
-                        </span>
-                        <button onclick="downloadReport('June_2025_Report.pdf')"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">Download</button>
-                    </div>
-                </div>
-                <div class="bg-white/10 rounded-xl px-6 py-4 hover-scale hover:bg-white/20 flex justify-between items-center"
-                    role="listitem" aria-label="May 2025 Report">
-                    <div>
-                        <span class="font-medium text-lg">Security Audit Report - May 2025</span>
-                        <span class="text-sm text-gray-400 ml-4">Completed on May 5, 2025</span>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="text-sm text-green-400 flex items-center">
-                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Completed
-                        </span>
-                        <button onclick="downloadReport('May_2025_Report.pdf')"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">Download</button>
-                    </div>
-                </div>
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-5xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <section class="fade-in glass rounded-3xl p-12 shadow-2xl border border-white/10">
+            <div class="flex items-center gap-3 mb-6">
+                <div id="icon-shield" class="w-8 h-8 text-blue-500"></div>
+                <h1 class="text-4xl font-bold tracking-tight">Security Audit Reports</h1>
             </div>
-        </div>
+            <p class="text-gray-300 mb-10 text-lg leading-relaxed">
+                Access official audit documents with expert insights, vulnerability breakdowns, and risk mitigation
+                recommendations.
+            </p>
+
+            <div class="space-y-6">
+
+                <!-- Report Card -->
+                <div
+                    class="hover-scale bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold">Security Audit Report – June 2025</h3>
+                        <p class="text-gray-400 text-sm mt-1">Completed: June 10, 2025</p>
+                    </div>
+                    <div class="flex items-center gap-5 mt-4 md:mt-0">
+                        <span class="text-sm text-green-400 flex items-center gap-1">
+                            <div id="icon-check-june" class="w-5 h-5"></div> Completed
+                        </span>
+                        <a href="/reports/June_2025_Report.pdf" download class="btn-premium">
+                            <div id="icon-download-june" class="w-4 h-4"></div> Download
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Report Card -->
+                <div
+                    class="hover-scale bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold">Security Audit Report – May 2025</h3>
+                        <p class="text-gray-400 text-sm mt-1">Completed: May 5, 2025</p>
+                    </div>
+                    <div class="flex items-center gap-5 mt-4 md:mt-0">
+                        <span class="text-sm text-green-400 flex items-center gap-1">
+                            <div id="icon-check-may" class="w-5 h-5"></div> Completed
+                        </span>
+                        <a href="/reports/May_2025_Report.pdf" download class="btn-premium">
+                            <div id="icon-download-may" class="w-4 h-4"></div> Download
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800/50 border-t border-gray-700 py-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-            <p>&copy; 2025 Guardrail Sentinel. All rights reserved.</p>
+    <!-- FOOTER -->
+    <footer class="bg-gray-800/60 border-t border-gray-700 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400 text-sm">
+            &copy; 2025 Guardrail Sentinel. All rights reserved.
         </div>
     </footer>
 
-    <!-- JavaScript for Download Functionality -->
+    <!-- JAVASCRIPT -->
     <script>
-        function downloadReport(filename) {
-            // Simulate download (replace with actual download logic)
-            alert(`Downloading ${filename}...`);
-            // Example: window.location.href = `/reports/${filename}`;
-        }
+        lucide.createIcons();
+
+        lucide.createIcons({
+            icons: {
+                ShieldCheck: lucide.ShieldCheck,
+                Download: lucide.Download,
+                CheckCircle: lucide.CheckCircle
+            }
+        });
+
+        // Attach icons
+        lucide.createIcon('ShieldCheck', { node: document.getElementById('icon-shield') });
+        lucide.createIcon('CheckCircle', { node: document.getElementById('icon-check-june') });
+        lucide.createIcon('Download', { node: document.getElementById('icon-download-june') });
+        lucide.createIcon('CheckCircle', { node: document.getElementById('icon-check-may') });
+        lucide.createIcon('Download', { node: document.getElementById('icon-download-may') });
     </script>
+
 </body>
 
 </html>
