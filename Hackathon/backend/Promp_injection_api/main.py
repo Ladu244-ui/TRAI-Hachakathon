@@ -73,6 +73,9 @@ async def get_results(prompt_id: str):
         risk_score=data.get("risk_score", 0.0),
         total_findings=len(data["findings"])
     )
+@app.get("/")
+def home():
+    return {"message": "Welcome to the Guardrail Sentinel API. Visit /docs to test the endpoints."}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
