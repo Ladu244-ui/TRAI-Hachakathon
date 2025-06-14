@@ -79,9 +79,12 @@ class TagGenerator:
         
         # Get vulnerability classification
         vuln_result = self.vulnerability_classifier.classify(prompt, response)
-        if vuln_result["type"] != "none":
-            all_tags.add(f"vulnerability:{vuln_result['type']}")
-            all_tags.add(f"risk:{'high' if vuln_result['confidence'] > 0.7 else 'medium' if vuln_result['confidence'] > 0.4 else 'low'}")
+        vulnerability_type = vuln_result.get("vulnerability", vuln_result.get("type", "none"))
+        vulnerability_confidence = vuln_result.get("confidence", 0.0)
+        
+        if vulnerability_type != "none":
+            all_tags.add(f"vulnerability:{vulnerability_type}")
+            all_tags.add(f"risk:{'high' if vulnerability_confidence > 0.7 else 'medium' if vulnerability_confidence > 0.4 else 'low'}")
         
         # Extract category-based tags
         for category in self.categories:
@@ -104,16 +107,29 @@ class TagGenerator:
         else:
             all_tags.add("complexity:low")
         
-        # Format output
-        return {
-            "tags": sorted(list(all_tags)),
-            "metadata": {
-                "prompt_length": len(prompt),
-                "response_length": len(response),
-                "vulnerability_type": vuln_result["type"],
-                "vulnerability_confidence": vuln_result["confidence"]
+        try:
+            # Format output
+            return {
+                "tags": sorted(list(all_tags)),
+                "metadata": {
+                    "prompt_length": len(prompt),
+                    "response_length": len(response),
+                    "vulnerability_type": vulnerability_type,
+                    "vulnerability_confidence": vulnerability_confidence
+                }
             }
-        }
+        except Exception as e:
+            print(f"Error in tag generation: {str(e)}")
+            # Return safe default values
+            return {
+                "tags": ["general"],
+                "metadata": {
+                    "prompt_length": len(prompt),
+                    "response_length": len(response),
+                    "vulnerability_type": "unknown",
+                    "vulnerability_confidence": 0.0
+                }
+            }
 
 # Example usage
 if __name__ == "__main__":

@@ -1,111 +1,88 @@
 import uuid
 from typing import Dict, Any, List
-from .model import InjectionFinding
+from app.model import InjectionFinding
 
 def new_prompt_id() -> str:
-    """Generate a unique identifier for a prompt test.
-    
-    Returns:
-        str: A unique UUID string
-    """
     return str(uuid.uuid4())
 
-def check_injection_patterns(prompt: str) -> List[Dict[str, Any]]:
-    """Check for common injection patterns in the prompt.
-    
-    Args:
-        prompt (str): The prompt text to analyze
-        
-    Returns:
-        List[Dict[str, Any]]: List of detected injection patterns
-    """
+def check_injection_patterns(prompt: str) -> List[InjectionFinding]:
     patterns = [
         {"pattern": "system.run", "type": "Command Injection", "severity": "high"},
         {"pattern": "exec(", "type": "Code Execution", "severity": "high"},
         {"pattern": "import os", "type": "System Access", "severity": "high"},
         {"pattern": "http://", "type": "URL Injection", "severity": "medium"},
-        {"pattern": "https://", "type": "URL Injection", "severity": "medium"}
+        {"pattern": "https://", "type": "URL Injection", "severity": "medium"},
+        {"pattern": "eval(", "type": "Code Execution", "severity": "high"},
+        {"pattern": "subprocess", "type": "System Access", "severity": "high"},
+        {"pattern": "file:", "type": "File Access", "severity": "high"}
     ]
     
     findings = []
     for pattern in patterns:
         if pattern["pattern"] in prompt.lower():
-            findings.append({
-                "type": pattern["type"],
-                "severity": pattern["severity"],
-                "description": f"Found potential {pattern['type']} pattern",
-                "location": {"pattern": pattern["pattern"]}
-            })
+            findings.append(InjectionFinding(
+                type=pattern["type"],
+                severity=pattern["severity"],
+                description=f"Found potential {pattern['type']} pattern",
+                location={"pattern": pattern["pattern"], "index": prompt.lower().index(pattern["pattern"])}
+            ))
     return findings
 
-def analyze_prompt_structure(prompt: str) -> List[Dict[str, Any]]:
-    """Analyze the structure of the prompt for potential vulnerabilities.
-    
-    Args:
-        prompt (str): The prompt text to analyze
-        
-    Returns:
-        List[Dict[str, Any]]: List of structural findings
-    """
+def analyze_prompt_structure(prompt: str) -> List[InjectionFinding]:
     findings = []
     
     # Check prompt length
     if len(prompt) > 1000:
-        findings.append({
-            "type": "Length Warning",
-            "severity": "low",
-            "description": "Prompt exceeds recommended length",
-            "location": {"length": len(prompt)}
-        })
+        findings.append(InjectionFinding(
+            type="Length Warning",
+            severity="low",
+            description="Prompt exceeds recommended length of 1000 characters",
+            location={"length": len(prompt), "limit": 1000}
+        ))
     
     # Check for multiple commands
-    if prompt.count(';') > 2:
-        findings.append({
-            "type": "Multiple Commands",
-            "severity": "medium",
-            "description": "Multiple command sequences detected",
-            "location": {"separator_count": prompt.count(';')}
-        })
+    command_count = prompt.count(';')
+    if command_count > 2:
+        findings.append(InjectionFinding(
+            type="Multiple Commands",
+            severity="medium",
+            description=f"Found {command_count} command sequences (limit: 2)",
+            location={"separator_count": command_count, "limit": 2}
+        ))
+    
+    # Check for suspicious characters
+    suspicious_chars = {'$', '`', '|', '&', '>'}
+    found_chars = {char for char in suspicious_chars if char in prompt}
+    if found_chars:
+        findings.append(InjectionFinding(
+            type="Suspicious Characters",
+            severity="medium",
+            description=f"Found suspicious characters: {', '.join(found_chars)}",
+            location={"characters": list(found_chars)}
+        ))
     
     return findings
 
 def run_tests(prompt: str) -> Dict[str, Any]:
-    """Run all security tests on the provided prompt.
-    
-    Args:
-        prompt (str): The prompt to test
-        
-    Returns:
-        Dict[str, Any]: Combined test results and findings
-    """
     findings = []
     
-    # Run injection pattern checks
-    injection_findings = check_injection_patterns(prompt)
-    findings.extend(injection_findings)
+    # Run all security checks
+    findings.extend(check_injection_patterns(prompt))
+    findings.extend(analyze_prompt_structure(prompt))
     
-    # Run structural analysis
-    structure_findings = analyze_prompt_structure(prompt)
-    findings.extend(structure_findings)
+    # Convert findings to dict format for storage
+    findings_dict = [f.dict() for f in findings]
     
-    # Calculate overall risk score
-    risk_score = calculate_risk_score(findings)
+    # Calculate risk score
+    risk_score = calculate_risk_score(findings_dict)
     
     return {
-        "findings": findings,
+        "findings": findings_dict,
         "risk_score": risk_score,
         "total_findings": len(findings)
     }
 
 def calculate_risk_score(findings: List[Dict[str, Any]]) -> float:
-    """Calculate the overall risk score based on findings.
-    
-    Args:
-        findings (List[Dict[str, Any]]): List of security findings
-        
-    Returns:
-        float: Risk score between 0 and 1
-    """
     if not findings:
         return 0.0
     
@@ -116,33 +93,20 @@ def calculate_risk_score(findings: List[Dict[str, Any]]) -> float:
     }
     
     total_weight = sum(severity_weights[f["severity"]] for f in findings)
-    max_weight = len(findings)
+    max_possible_weight = len(findings)  # Maximum possible weight if all findings were high severity
     
-    return min(1.0, total_weight / max_weight if max_weight > 0 else 0.0)
+    # Normalize score between 0 and 1
+    return min(1.0, total_weight / max_possible_weight if max_possible_weight > 0 else 0.0)
 
-# In-memory storage for results (replace with database in production)
+# In-memory storage
 _results_store: Dict[str, Dict[str, Any]] = {}
 
 def save_result(prompt_id: str, data: Dict[str, Any]) -> bool:
-    """Save test results to storage.
-    
-    Args:
-        prompt_id (str): Unique identifier for the test
-        data (Dict[str, Any]): Test results data
-        
-    Returns:
-        bool: True if save was successful
-    """
-    _results_store[prompt_id] = data
-    return True
+    try:
+        _results_store[prompt_id] = data
+        return True
+    except Exception:
+        return False
 
 def fetch_result(prompt_id: str) -> Dict[str, Any] | None:
-    """Retrieve test results from storage.
-    
-    Args:
-        prompt_id (str): Unique identifier for the test
-        
-    Returns:
-        Dict[str, Any] | None: Test results or None if not found
-    """
     return _results_store.get(prompt_id)

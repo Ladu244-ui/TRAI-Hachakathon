@@ -1,28 +1,12 @@
 from fastapi import FastAPI
-from services.prompt_tester import test_single_prompt
-from schemas.schemas import SinglePromptRequest
-from fastapi.middleware.cors import CORSMiddleware
+from api.routes import router
+import os
 
+app = FastAPI(title="Guardrail Sentinel")
 
-app = FastAPI(openapi_url="/openapi.json", docs_url="/docs")
+app.include_router(router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Add your frontend URL here
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Make sure OPTIONS is included
-    allow_headers=["*"],
-)
+if not os.path.exists("reports/generated"):
+    os.makedirs("reports/generated")
 
-@app.get("/")
-def home():
-    return {"message": "Guardrail Sentinel"}
-
-@app.post("/test_prompt")
-async def test_prompt(request: SinglePromptRequest):
-    result = await test_single_prompt(request.chatbot_url, request.prompt)
-    return result
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8004)
+# Run using `uvicorn main:app --reload`
