@@ -2,269 +2,209 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - Guardrail Sentinel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <style>
         body {
-            font-family: "Roboto", sans-serif;
-            margin: 0;
-            padding: 0;
+            font-family: 'Inter', sans-serif;
         }
 
-        .back {
-            background: linear-gradient(120grad, rgb(100, 57, 134), rgb(152, 174, 213));
-            position: absolute;
-            width: 100%;
-            height: 100%;
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out forwards;
         }
 
-        .registration-form {
-            width: 400px;
-            position: absolute;
-            left: 50%;
-            transform: translate(-50%, 0%);
-            top: 15%;
-        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
 
-        header {
-            background: white;
-            padding: 20px 40px;
-            border-radius: 15px 15px 0 0;
-        }
-
-        header h1 {
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            color: #333;
-            font-size: 23px;
-            text-transform: uppercase;
-            margin: 0;
-        }
-
-        header p {
-            color: rgb(159, 172, 182);
-            font-size: 17px;
-            margin: 5px 0 0 0;
-        }
-
-        form {
-            position: relative;
-        }
-
-        .input-section {
-            width: 100%;
-            position: absolute;
-            display: flex;
-            left: 50%;
-            transform: translate(-50%, 0);
-            height: 75px;
-            border-radius: 0 0 15px 15px;
-            overflow: hidden;
-            z-index: 2;
-            box-shadow: 0px 0px 100px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease-in;
-        }
-
-        .input-section.folded {
-            width: 95%;
-            margin-top: 10px;
-            z-index: 1;
-        }
-
-        .input-section.folded input,
-        .input-section.folded span {
-            background-color: rgb(233, 226, 192);
-        }
-
-        .input-section.folded+.folded {
-            width: 90%;
-            margin-top: 20px;
-            z-index: 0;
-        }
-
-        .input-section.folded+.folded input,
-        .input-section.folded+.folded span {
-            background-color: rgb(225, 188, 239);
-        }
-
-        .input-section.fold-up {
-            margin-top: -75px;
-        }
-
-        input {
-            background: #f8f8fb;
-            color: rgb(143, 143, 214);
-            width: 80%;
-            border: 0;
-            padding: 20px 40px;
-        }
-
-        input:focus {
-            outline: none;
-        }
-
-        input::placeholder {
-            color: rgb(143, 143, 214);
-            font-weight: 100;
-        }
-
-        .animated-button {
-            width: 20%;
-            background-color: rgb(212, 212, 255);
-        }
-
-        .animated-button span {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 75px;
-            transition: all 0.2s ease-in;
-        }
-
-        .animated-button i {
-            font-size: 25px;
-            color: rgb(153, 153, 248);
-        }
-
-        .animated-button .next-button {
-            background: transparent;
-            width: 100%;
-            border: 0;
-            cursor: pointer;
-        }
-
-        .success {
-            width: 100%;
-            position: absolute;
-            display: flex;
-            align-items: center;
-            left: 50%;
-            transform: translate(-50%, 0);
-            height: 75px;
-            border-radius: 0 0 15px 15px;
-            overflow: hidden;
-            z-index: 2;
-            box-shadow: 0px 0px 100px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease-in;
-            background: limegreen;
-            margin-top: -75px;
-        }
-
-        .success p {
-            color: white;
-            font-weight: 900;
-            letter-spacing: 2px;
-            font-size: 18px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .next {
-            margin-top: -75px;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 
-<body>
-    <div class="back">
-        <div class="registration-form">
-            <header>
-                <h1>Sign Up</h1>
-                <p>Fill in all informations</p>
-            </header>
-            <form>
-                <div class="input-section email-section">
-                    <input type="email" placeholder="ENTER YOUR E-MAIL HERE" autocomplete="off" class="email">
-                    <div class="animated-button">
-                        <span class="icon-paper-plane">
-                            <i class="fa fa-envelope-o"></i>
-                        </span>
-                        <span class="next-button email">
-                            <i class="fa fa-arrow-up"></i>
-                        </span>
+<body class="bg-black text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const SignUp = () => {
+            const [name, setName] = React.useState('');
+            const [email, setEmail] = React.useState('');
+            const [password, setPassword] = React.useState('');
+            const [confirmPassword, setConfirmPassword] = React.useState('');
+            const [error, setError] = React.useState('');
+            const [success, setSuccess] = React.useState(false);
+            const [loading, setLoading] = React.useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setError('');
+                setSuccess(false);
+
+                if (!name || !email || !password || !confirmPassword) {
+                    setError("Please fill in all fields.");
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    setError("Passwords do not match.");
+                    return;
+                }
+
+                setLoading(true);
+
+                setTimeout(() => {
+                    setLoading(false);
+                    setSuccess(true);
+                    setTimeout(() => {
+                        window.location.href = "dashboard/index.html";
+                    }, 2500);
+                }, 1500);
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center px-4 relative">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_40%,rgba(255,0,0,0.12),transparent_70%)] pointer-events-none"></div>
+
+                    <div className="w-full max-w-md bg-[#0d0d0d] border border-red-800 rounded-2xl p-8 shadow-xl z-10 relative">
+                        {success && (
+                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full mt-4 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg fade-in text-sm font-medium">
+                                🎉 Account created! Redirecting...
+                            </div>
+                        )}
+
+                        <div className="mb-6 text-center space-y-1">
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
+                                Create your account
+                            </h1>
+                            <p className="text-sm text-gray-400">Secure your access to Guardrail Sentinel</p>
+                        </div>
+
+                        <form className="space-y-4" onSubmit={handleSubmit}>
+                            <div>
+                                <label className="text-sm text-gray-300">Name</label>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="John Doe"
+                                    required
+                                    className="w-full px-4 py-2 bg-black border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-gray-300">Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="you@example.com"
+                                    required
+                                    className="w-full px-4 py-2 bg-black border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-gray-300">Password</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    required
+                                    className="w-full px-4 py-2 bg-black border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-gray-300">Confirm Password</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    required
+                                    className="w-full px-4 py-2 bg-black border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
+                                />
+                            </div>
+
+                            {error && <p className="text-sm text-red-400">{error}</p>}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium py-2 rounded-md transition disabled:opacity-50"
+                            >
+                                {loading ? "Creating Account..." : "Sign Up"}
+                            </button>
+                        </form>
+
+                        <div className="flex items-center my-6">
+                            <div className="flex-grow h-px bg-white/10" />
+                            <span className="px-4 text-xs text-gray-500">OR SIGN UP WITH</span>
+                            <div className="flex-grow h-px bg-white/10" />
+                        </div>
+
+                        <div className="space-y-3">
+                            <button
+                                onClick={() => window.location.href = '/auth/google'}
+                                className="w-full flex items-center justify-center gap-3 px-4 py-2 bg-[#1a1a1a] border border-white/10 hover:bg-white/5 rounded-lg transition"
+                            >
+                                <img src="https://www.google.com/favicon.ico" className="w-5 h-5" />
+                                <span className="text-sm font-medium">Sign up with Google</span>
+                            </button>
+
+                            <button
+                                onClick={() => window.location.href = '/auth/github'}
+                                className="w-full flex items-center justify-center gap-3 px-4 py-2 bg-[#1a1a1a] border border-white/10 hover:bg-white/5 rounded-lg transition"
+                            >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fillRule="evenodd" clipRule="evenodd"
+                                        d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 
+                      6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-
+                      .013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-
+                      1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 
+                      1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 
+                      2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-
+                      4.555-1.11-4.555-4.943 0-1.091.39-1.984 
+                      1.029-2.683-.103-.253-.446-1.27.098-2.647 
+                      0 0 .84-.269 2.75 1.025A9.578 9.578 0 
+                      0112 6.836c.85.004 1.705.114 2.504.336 
+                      1.909-1.294 2.747-1.025 2.747-1.025.546 
+                      1.377.203 2.394.1 2.647.64.699 
+                      1.028 1.592 1.028 2.683 0 3.842-2.339 
+                      4.687-4.566 4.935.359.309.678.919.678 
+                      1.852 0 1.336-.012 2.415-.012 2.743 
+                      0 .267.18.578.688.48C19.138 20.167 22 
+                      16.418 22 12c0-5.523-4.477-10-10-10z" />
+                                </svg>
+                                <span className="text-sm font-medium">Sign up with GitHub</span>
+                            </button>
+                        </div>
+
+                        <div className="text-center mt-6">
+                            <p className="text-sm text-gray-500">
+                                Already have an account?
+                                <a href="/login" className="text-red-500 hover:underline ml-1">Sign in</a>
+                            </p>
+                        </div>
                     </div>
                 </div>
+            );
+        };
 
-                <div class="input-section password-section folded">
-                    <input type="password" placeholder="ENTER YOUR PASSWORD HERE" class="password">
-                    <div class="animated-button">
-                        <span class="icon-lock">
-                            <i class="fa fa-lock"></i>
-                        </span>
-                        <span class="next-button password">
-                            <i class="fa fa-arrow-up"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="input-section repeat-password-section folded">
-                    <input type="password" placeholder="REPEAT YOUR PASSWORD HERE" class="repeat-password">
-                    <div class="animated-button">
-                        <span class="icon-repeat-lock">
-                            <i class="fa fa-lock"></i>
-                        </span>
-                        <span class="next-button repeat-password">
-                            <i class="fa fa-paper-plane"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="success">
-                    <p>ACCOUNT CREATED</p>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        const emailInput = document.querySelector('.email');
-        const passwordInput = document.querySelector('.password');
-        const repeatPasswordInput = document.querySelector('.repeat-password');
-
-        const iconPaperPlane = document.querySelector('.icon-paper-plane');
-        const iconLock = document.querySelector('.icon-lock');
-        const iconRepeatLock = document.querySelector('.icon-repeat-lock');
-
-        emailInput.addEventListener('input', () => {
-            if (emailInput.value.trim()) {
-                iconPaperPlane.classList.add('next');
-            } else {
-                iconPaperPlane.classList.remove('next');
-            }
-        });
-
-        document.querySelector('.next-button.email').addEventListener('click', () => {
-            document.querySelector('.email-section').classList.add('fold-up');
-            document.querySelector('.password-section').classList.remove('folded');
-        });
-
-        passwordInput.addEventListener('input', () => {
-            if (passwordInput.value.trim()) {
-                iconLock.classList.add('next');
-            } else {
-                iconLock.classList.remove('next');
-            }
-        });
-
-        document.querySelector('.next-button.password').addEventListener('click', () => {
-            document.querySelector('.password-section').classList.add('fold-up');
-            document.querySelector('.repeat-password-section').classList.remove('folded');
-        });
-
-        repeatPasswordInput.addEventListener('input', () => {
-            if (repeatPasswordInput.value.trim()) {
-                iconRepeatLock.classList.add('next');
-            } else {
-                iconRepeatLock.classList.remove('next');
-            }
-        });
-
-        document.querySelector('.next-button.repeat-password').addEventListener('click', () => {
-            document.querySelector('.repeat-password-section').classList.add('fold-up');
-            document.querySelector('.success').style.marginTop = '0';
-        });
+        ReactDOM.createRoot(document.getElementById("root")).render(<SignUp />);
     </script>
 </body>
 

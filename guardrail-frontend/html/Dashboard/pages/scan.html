@@ -3,19 +3,132 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Run Scan - Guardrail Sentinel</title>
-    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
-<body>
-    <div class="fade-in glass rounded-2xl p-8">
-        <h2 class="text-3xl font-semibold mb-6">Run Scan</h2>
-        <p class="text-white/80">Initiate a new security scan to detect potential prompt injection vulnerabilities in
-            your AI systems.</p>
-        <button
-            class="mt-6 px-6 py-3 bg-[var(--primary-color)] text-white rounded-xl hover:bg-opacity-80 transition-all">Start
-            New Scan</button>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen flex items-center justify-center p-4">
+    <div class="fade-in glass rounded-2xl p-8 max-w-2xl w-full">
+        <h2 class="text-3xl font-semibold text-white mb-6">Run Security Scan</h2>
+        <p class="text-white/80 mb-6">Enter a prompt to initiate a security scan for detecting potential prompt
+            injection vulnerabilities in your AI systems.</p>
+
+        <!-- Prompt Input -->
+        <div class="mb-6">
+            <label for="promptInput" class="block text-white/90 font-medium mb-2">Enter Prompt</label>
+            <textarea id="promptInput" rows="4"
+                class="w-full p-3 bg-gray-800/50 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Type your prompt here..."></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex space-x-4 mb-6">
+            <button id="startScanBtn"
+                class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Start
+                New Scan</button>
+            <button id="checkResultsBtn"
+                class="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled>Check Results</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <h3 class="text-xl font-semibold text-white mb-4">Scan Results</h3>
+            <div id="resultsContainer" class="bg-gray-800/50 p-4 rounded-lg">
+                <p id="resultsMessage" class="text-white/80">No results available yet. Run a scan to see the report.</p>
+                <div id="reportDetails" class="hidden">
+                    <div class="mb-4">
+                        <span class="font-medium text-white">Prompt:</span>
+                        <p id="reportPrompt" class="text-white/80"></p>
+                    </div>
+                    <div class="mb-4">
+                        <span class="font-medium text-white">Vulnerabilities Detected:</span>
+                        <p id="reportVulnerabilities" class="text-white/80"></p>
+                    </div>
+                    <div>
+                        <span class="font-medium text-white">Recommendations:</span>
+                        <p id="reportRecommendations" class="text-white/80"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        const startScanBtn = document.getElementById('startScanBtn');
+        const checkResultsBtn = document.getElementById('checkResultsBtn');
+        const promptInput = document.getElementById('promptInput');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsMessage = document.getElementById('resultsMessage');
+        const reportDetails = document.getElementById('reportDetails');
+        const reportPrompt = document.getElementById('reportPrompt');
+        const reportVulnerabilities = document.getElementById('reportVulnerabilities');
+        const reportRecommendations = document.getElementById('reportRecommendations');
+
+        startScanBtn.addEventListener('click', () => {
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                alert('Please enter a prompt to scan.');
+                return;
+            }
+
+            startScanBtn.disabled = true;
+            startScanBtn.textContent = 'Scanning...';
+            resultsSection.classList.remove('hidden');
+            resultsMessage.textContent = 'Scanning in progress...';
+            reportDetails.classList.add('hidden');
+
+            // Simulate scan process (replace with actual API call in production)
+            setTimeout(() => {
+                // Mock scan results
+                const vulnerabilities = Math.random() > 0.5 ? 'Potential prompt injection detected.' : 'No vulnerabilities detected.';
+                const recommendations = vulnerabilities.includes('No') ? 'Continue monitoring inputs.' : 'Sanitize inputs and implement strict validation.';
+
+                // Update UI with results
+                resultsMessage.classList.add('hidden');
+                reportDetails.classList.remove('hidden');
+                reportPrompt.textContent = prompt;
+                reportVulnerabilities.textContent = vulnerabilities;
+                reportRecommendations.textContent = recommendations;
+
+                // Reset buttons
+                startScanBtn.disabled = false;
+                startScanBtn.textContent = 'Start New Scan';
+                checkResultsBtn.disabled = false;
+            }, 2000);
+        });
+
+        checkResultsBtn.addEventListener('click', () => {
+            if (!reportDetails.classList.contains('hidden')) {
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
 </body>
 
 </html>
