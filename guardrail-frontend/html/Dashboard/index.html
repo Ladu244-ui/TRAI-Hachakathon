@@ -26,62 +26,23 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #250e0e, #450d0d);
+            background: #1a0b0b;
             min-height: 100vh;
             color: #fff;
+            display: flex;
+            flex-direction: column;
         }
 
         .glass {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .glass::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 10%, transparent 10%);
-            background-size: 50px 50px;
-            animation: waterFlow 20s linear infinite;
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        @keyframes waterFlow {
-            0% {
-                transform: translateY(0);
-            }
-
-            100% {
-                transform: translateY(-100%);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         #sidebar {
             width: var(--sidebar-collapsed-width);
+            transition: all var(--transition-speed);
         }
 
         #sidebar:hover {
@@ -97,13 +58,17 @@
             display: inline-block;
         }
 
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
         .card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
 
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -112,91 +77,156 @@
 
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.3);
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.5);
+        }
+
+        .cards__inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5em;
+        }
+
+        .card {
+            flex: 1 1 16rem;
+            padding: 1.5em 2em;
+            display: grid;
+            grid-template-rows: auto auto auto 1fr;
+            align-items: start;
+            gap: 1em;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+        }
+
+        .card__heading {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .card__price {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .card__bullets {
+            line-height: 1.4;
+        }
+
+        .card__bullets li::before {
+            content: '✓';
+            margin-right: 0.8ch;
+            color: #4ade80;
+        }
+
+        .cta {
+            display: block;
+            align-self: end;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background: var(--primary-color);
+            padding: 0.6em;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .cta:hover {
+            background: #750a0a;
         }
     </style>
 </head>
 
 <body class="flex flex-col min-h-screen">
     <header
-        class="glass w-full px-8 py-4 flex justify-between items-center sticky top-0 z-50 rounded-2xl shadow-lg backdrop-blur-md border border-white/10">
-        <div class="flex items-center gap-5">
-            <h1 class="text-2xl font-semibold text-white tracking-wide select-none">Guardrail Sentinel</h1>
+        class="glass w-full px-6 py-3 flex justify-between items-center sticky top-0 z-50 rounded-xl shadow-md backdrop-blur-md border border-white/10">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-semibold text-white tracking-wide select-none">Guardrail Sentinel</h1>
         </div>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-4">
             <div class="relative">
                 <input type="text" placeholder="Search..."
-                    class="glass w-64 pl-11 pr-4 py-2 rounded-full text-white bg-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-all duration-200" />
+                    class="glass w-56 pl-10 pr-4 py-2 rounded-full text-white bg-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-all duration-200" />
                 <i
-                    class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-base pointer-events-none"></i>
+                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
             </div>
             <div class="relative group">
-                <img src="https://media.cnn.com/api/v1/images/stellar/prod/240116120407-bill-gates-091323.jpg?c=16x9&q=h_833,w_1480,c_fill"
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcePxkXtFyMIWBb6cvVxf0sgajEvEiLMeZ6g&s"
                     alt="User Avatar"
-                    class="w-11 h-11 rounded-full border-2 border-[var(--primary-color)] object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105" />
+                    class="w-10 h-10 rounded-full border-2 border-[var(--primary-color)] object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105" />
             </div>
         </div>
     </header>
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex flex-1 overflow-hidden">
         <aside id="sidebar"
-            class="glass group/sidebar hover:bg-transparent w-[var(--sidebar-collapsed-width)] min-h-screen p-4 hover:p-6 flex flex-col transition-all duration-[var(--transition-speed)] rounded-r-3xl shadow-md backdrop-blur-lg border-r border-white/10 overflow-hidden"
+            class="glass group/sidebar w-[var(--sidebar-collapsed-width)] p-3 hover:p-6 flex flex-col transition-all duration-[var(--transition-speed)] rounded-r-2xl shadow-md backdrop-blur-md border-r border-white/10"
             aria-label="Main Navigation">
-            <div class="logo mb-10 text-center">
+            <div class="logo mb-8 text-center">
                 <img src="../../assets/GuarSentinel_Logo.png" alt="Guardrail Sentinel Logo"
-                    class="w-16 mx-auto transition-all duration-300 group-hover/sidebar:w-24" />
+                    class="w-14 mx-auto transition-all duration-300 group-hover/sidebar:w-20" />
             </div>
             <nav class="sidebar-menu flex-1">
                 <ul class="space-y-2">
                     <li
-                        class="active flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer bg-white/20 text-white font-medium hover:bg-white/25 transition-all duration-200">
-                        <a href="pages/dashboard.html" class="flex items-center gap-4 w-full">
-                            <i class="fas fa-tachometer-alt text-lg"></i>
+                        class="active flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer bg-white/20 text-white font-medium hover:bg-white/25 transition-all duration-200">
+                        <a href="#" data-section="pages/dashboard.html" class="flex items-center gap-3 w-full">
+                            <i class="fas fa-tachometer-alt text-base"></i>
                             <span
                                 class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Dashboard</span>
                         </a>
                     </li>
-                    <li data-section="pages/scan.html"
-                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
-                        <i class="fas fa-bug-slash text-lg"></i>
-                        <span
-                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Scan</span>
+                    <li
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <a href="#" data-section="pages/scan.html" class="flex items-center gap-3 w-full">
+                            <i class="fas fa-bug-slash text-base"></i>
+                            <span
+                                class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Scan</span>
+                        </a>
                     </li>
-                    <li data-section="pages/reports.html"
-                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
-                        <i class="fas fa-file-shield text-lg"></i>
-                        <span
-                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Reports</span>
+                    <li
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <a href="#" data-section="pages/reports.html" class="flex items-center gap-3 w-full">
+                            <i class="fas fa-file-shield text-base"></i>
+                            <span
+                                class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Reports</span>
+                        </a>
                     </li>
-                    <li data-section="pages/history.html"
-                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
-                        <i class="fas fa-clock-rotate-left text-lg"></i>
-                        <span
-                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">History</span>
+                    <li
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <a href="#" data-section="pages/history.html" class="flex items-center gap-3 w-full">
+                            <i class="fas fa-clock-rotate-left text-base"></i>
+                            <span
+                                class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">History</span>
+                        </a>
                     </li>
-                    <li onclick="window.location.href='pages/pricing.html'"
-                        class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
-                        <i class="fas fa-tags text-lg"></i>
-                        <span
-                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Pricing</span>
+                    <li
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
+                        <a href="#" data-section="pages/pricing.html" class="flex items-center gap-3 w-full">
+                            <i class="fas fa-tags text-base"></i>
+                            <span
+                                class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Pricing</span>
+                        </a>
                     </li>
-
                 </ul>
             </nav>
         </aside>
 
-        <main class="flex-1 overflow-y-auto bg-gradient-to-b from-white/5 to-transparent p-8">
-            <section class="glass rounded-2xl p-8 shadow-lg min-h-[80vh] border border-white/10 content"></section>
+        <main class="flex-1 overflow-y-auto bg-[#1a0b0b] p-6">
+            <section class="glass rounded-xl p-6 shadow-md min-h-[80vh] border border-white/10 content"></section>
         </main>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const menuItems = document.querySelectorAll('.sidebar-menu li');
+            const menuItems = document.querySelectorAll('.sidebar-menu a');
             const content = document.querySelector('.content');
 
             const loadSection = async (file) => {
@@ -234,8 +264,8 @@
             menuItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    menuItems.forEach(i => i.classList.remove('active', 'bg-[rgba(255,255,255,0.2)]'));
-                    item.classList.add('active', 'bg-[rgba(255,255,255,0.2)]');
+                    menuItems.forEach(i => i.parentElement.classList.remove('active', 'bg-white/20'));
+                    item.parentElement.classList.add('active', 'bg-white/20');
 
                     const icon = item.querySelector('i');
                     if (icon) {
