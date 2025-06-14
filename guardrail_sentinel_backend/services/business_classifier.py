@@ -1,6 +1,9 @@
 # services/business_classifier.py
 from utils.novita_client import call_novita
 
+
+
+
 CLASSIFIER_PROMPT = """
 Classify the business type from this description or content. Respond with a one-word business category only.
 

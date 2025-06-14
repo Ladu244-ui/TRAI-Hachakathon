@@ -22,4 +22,8 @@ async def generate_injection_prompts(business_type: str, count: int = 5) -> list
     lines = response.strip().split("\n")
     cleaned = [line.split(". ", 1)[-1].strip() for line in lines if line.strip()]
     cleaned.pop(0)
-    return cleaned
+
+    if "</think>" in cleaned:
+        index = cleaned.index("</think>") + 1  # +1 to start after the keyword
+        new_list = cleaned[index:]
+    return new_list
