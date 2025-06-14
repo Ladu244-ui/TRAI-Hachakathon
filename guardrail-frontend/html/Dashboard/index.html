@@ -7,6 +7,7 @@
     <title>Guardrail Sentinel Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
@@ -126,7 +127,6 @@
         <div class="flex items-center gap-5">
             <h1 class="text-2xl font-semibold text-white tracking-wide select-none">Guardrail Sentinel</h1>
         </div>
-
         <div class="flex items-center gap-6">
             <div class="relative">
                 <input type="text" placeholder="Search..."
@@ -152,11 +152,13 @@
             </div>
             <nav class="sidebar-menu flex-1">
                 <ul class="space-y-2">
-                    <li data-section="pages/dashboard.html"
+                    <li
                         class="active flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer bg-white/20 text-white font-medium hover:bg-white/25 transition-all duration-200">
-                        <i class="fas fa-tachometer-alt text-lg"></i>
-                        <span
-                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Dashboard</span>
+                        <a href="pages/dashboard.html" class="flex items-center gap-4 w-full">
+                            <i class="fas fa-tachometer-alt text-lg"></i>
+                            <span
+                                class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Dashboard</span>
+                        </a>
                     </li>
                     <li data-section="pages/scan.html"
                         class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
@@ -187,9 +189,7 @@
         </aside>
 
         <main class="flex-1 overflow-y-auto bg-gradient-to-b from-white/5 to-transparent p-8">
-            <section class="glass rounded-2xl p-8 shadow-lg min-h-[80vh] border border-white/10 content">
-                <!-- Dynamic content loads here -->
-            </section>
+            <section class="glass rounded-2xl p-8 shadow-lg min-h-[80vh] border border-white/10 content"></section>
         </main>
     </div>
 
@@ -247,11 +247,8 @@
                 });
             });
 
-            // Load default
-            const defaultSection = 'pages/dashboard.html';
-            loadSection(defaultSection);
+            loadSection('pages/dashboard.html');
 
-            // Dark mode toggle
             const darkModeToggle = document.createElement('button');
             darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
             darkModeToggle.className = 'text-white p-2 rounded-full hover:bg-[rgba(255,255,255,0.1)]';
