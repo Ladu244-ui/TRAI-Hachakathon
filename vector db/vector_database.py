@@ -12,105 +12,13 @@ import json
 import uuid
 import numpy as np
 
-# Mock external components for testing
-class PromptNormalizer:
-    def normalize(self, prompt, response):
-        return {"prompt": prompt.lower(), "response": response.lower()}
-
-class PromptVectorStore:
-    def _get_simple_embedding(self, text):
-        """Generate a simple embedding based on keywords"""
-        keywords = {
-            'password': [0.8, 0.7, 0.6],
-            'hack': [0.7, 0.8, 0.6],
-            'security': [0.6, 0.7, 0.8],
-            'authentication': [0.7, 0.7, 0.7],
-            'credentials': [0.75, 0.75, 0.65],
-            'programming': [0.3, 0.3, 0.8],
-            'system': [0.5, 0.6, 0.7],
-            'training': [0.4, 0.4, 0.6],
-        }
-        
-        # Generate base embedding
-        embedding = np.zeros(768) + 0.1  # Small base value to avoid zero vector
-        
-        # Modify first few dimensions based on keywords
-        for word, values in keywords.items():
-            if word in text.lower():
-                embedding[:3] += values
-        
-        # Ensure non-zero
-        if (embedding ** 2).sum() > 0:
-            # Normalize
-            embedding = embedding / np.sqrt((embedding ** 2).sum())
-        
-        return embedding.tolist()
-
-    def embed_prompt_response(self, prompt, response):
-        # Combine prompt and response for embedding
-        combined = f"{prompt} {response}"
-        return self._get_simple_embedding(combined)
-
-class VulnerabilityClassifier:
-    def classify(self, prompt, response):
-        prompt_lower = prompt.lower()
-        
-        # Define vulnerability patterns
-        high_risk = ['password', 'hack', 'credentials', 'authentication']
-        medium_risk = ['security', 'system', 'training']
-        
-        # Check for high-risk patterns
-        for pattern in high_risk:
-            if pattern in prompt_lower:
-                return {"type": "security_risk", "confidence": 0.95}
-        
-        # Check for medium-risk patterns
-        for pattern in medium_risk:
-            if pattern in prompt_lower:
-                return {"type": "potential_risk", "confidence": 0.75}
-        
-        return {"type": "low_risk", "confidence": 0.3}
-
-class TagGenerator:
-    def generate_tags(self, prompt, response):
-        prompt_lower = prompt.lower()
-        tags = set()
-        
-        # Security-related tags
-        if any(word in prompt_lower for word in ['password', 'credentials', 'authentication']):
-            tags.update(['security', 'authentication'])
-        
-        if any(word in prompt_lower for word in ['hack', 'system']):
-            tags.update(['security', 'hacking', 'system'])
-            
-        if 'programming' in prompt_lower:
-            tags.update(['programming', 'technical'])
-            
-        if 'training' in prompt_lower:
-            tags.update(['ai', 'training'])
-            
-        if not tags:
-            tags.add('general')
-            
-        return {"tags": list(tags)}
-
-class SimilarityAnalyzer:
-    def analyze(self, prompt, response):
-        return {"similarity_score": 0.8}
-
-class FailureAnalyzer:
-    def summarize_failures(self, data):
-        prompt = data[0]["prompt"].lower()
-        
-        # Define risk patterns
-        high_risk = ['password', 'hack', 'credentials']
-        medium_risk = ['security', 'system', 'authentication']
-        
-        if any(word in prompt for word in high_risk):
-            return {"risk_level": "high"}
-        elif any(word in prompt for word in medium_risk):
-            return {"risk_level": "medium"}
-        return {"risk_level": "low"}
+# Import actual implementations
+from prompt_normalizer import PromptNormalizer
+from prompt_vector_store import PromptVectorStore
+from vulnerability_classifier import VulnerabilityClassifier
+from tag_generator import TagGenerator
+from similarity_analyzer import SimilarityAnalyzer
+from failure_analyzer import FailureAnalyzer
 
 
 @dataclass
@@ -123,6 +31,7 @@ class PromptAnalysis:
     tags: List[str]
     similarity_score: Optional[float] = None
     risk_level: Optional[str] = None
+    metadata: Optional[Dict] = None
 
 
 class VectorDatabase:
@@ -153,10 +62,12 @@ class VectorDatabase:
             FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=768),
             FieldSchema(name="tags", dtype=DataType.JSON),
             FieldSchema(name="risk_level", dtype=DataType.VARCHAR, max_length=20),
+            FieldSchema(name="similarity_score", dtype=DataType.FLOAT),
+            FieldSchema(name="metadata", dtype=DataType.JSON),
         ]
         prompt_schema = CollectionSchema(
             fields=prompt_fields,
-            description="Store prompt-response pairs with embeddings",
+            description="Store prompt-response pairs with embeddings and analysis",
             enable_dynamic_field=True  # Enable dynamic fields for flexibility
         )
         self.prompt_collection = self._get_or_create_collection("prompt_responses", prompt_schema)
@@ -185,44 +96,90 @@ class VectorDatabase:
     def analyze_and_store(self, prompt: str, response: str) -> str:
         print("\nAnalyzing new prompt-response pair...")
 
-        # Normalize and analyze
-        normalized = self.normalizer.normalize(prompt, response)
-        embedding = self.vector_store.embed_prompt_response(normalized["prompt"], normalized["response"])
-        vuln_result = self.vulnerability_classifier.classify(normalized["prompt"], normalized["response"])
-        tag_result = self.tag_generator.generate_tags(normalized["prompt"], normalized["response"])
-        risk_analysis = self.failure_analyzer.summarize_failures([{
-            "prompt": normalized["prompt"],
-            "response": normalized["response"]
-        }])
+        try:
+            # Normalize and analyze
+            normalized = self.normalizer.normalize(prompt, response)
+            embedding = self.vector_store.embed_prompt_response(normalized["prompt"], normalized["response"])
+            
+            # Get vulnerability analysis
+            vuln_result = self.vulnerability_classifier.classify(normalized["prompt"], normalized["response"])
+            vulnerability_type = vuln_result.get("vulnerability", vuln_result.get("type", "unknown"))
+            vulnerability_confidence = vuln_result.get("confidence", 0.0)
+            
+            # Get tag analysis with all metadata
+            tag_result = self.tag_generator.generate_tags(normalized["prompt"], normalized["response"])
+            
+            # Get similarity analysis
+            similarity_result = None
+            try:
+                similarity_result = self.similarity_analyzer.explain_similarity(
+                    {"prompt": normalized["prompt"], "response": normalized["response"]},
+                    {"prompt": normalized["prompt"], "response": normalized["response"]}
+                )
+            except Exception as e:
+                print(f"Similarity analysis skipped: {str(e)}")
+                similarity_result = {"similarity_score": None}
+            
+            # Get failure analysis
+            risk_analysis = self.failure_analyzer.summarize_failures([{
+                "prompt": normalized["prompt"],
+                "response": normalized["response"]
+            }])
 
-        # Create analysis object
-        analysis = PromptAnalysis(
-            prompt=normalized["prompt"],
-            response=normalized["response"],
-            embedding=embedding,
-            vulnerability_type=vuln_result["type"],
-            vulnerability_confidence=vuln_result["confidence"],
-            tags=tag_result["tags"],
-            risk_level=risk_analysis.get("risk_level")
-        )
+            # Create analysis object with extended information
+            analysis = PromptAnalysis(
+                prompt=normalized["prompt"],
+                response=normalized["response"],
+                embedding=embedding,
+                vulnerability_type=vulnerability_type,
+                vulnerability_confidence=vulnerability_confidence,
+                tags=tag_result["tags"],
+                similarity_score=similarity_result.get("similarity_score"),
+                risk_level=risk_analysis.get("risk_level", "unknown"),
+                metadata={
+                    "tag_metadata": tag_result.get("metadata", {}),
+                    "vulnerability_data": vuln_result,
+                    "similarity_data": similarity_result,
+                    "risk_data": risk_analysis
+                }
+            )
 
-        return self.add_prompt_analysis(analysis)
+            # Store additional metadata
+            analysis_id = self.add_prompt_analysis(analysis)
+            
+            # Print detailed analysis
+            print("\nAnalysis Results:")
+            print(f"Vulnerability Analysis: {json.dumps(vuln_result, indent=2)}")
+            print(f"Tag Analysis: {json.dumps(tag_result, indent=2)}")
+            if similarity_result:
+                print(f"Similarity Analysis: {json.dumps(similarity_result, indent=2)}")
+            print(f"Risk Analysis: {json.dumps(risk_analysis, indent=2)}")
+            
+            return analysis_id
+            
+        except Exception as e:
+            print(f"Error during analysis: {str(e)}")
+            raise
 
     def add_prompt_analysis(self, analysis: PromptAnalysis) -> str:
         analysis_id = str(uuid.uuid4())
         print(f"Storing analysis with ID: {analysis_id}")
 
-        # Insert into prompt_responses collection
-        self.prompt_collection.insert([{
+        # Create metadata structure with all analysis details
+        metadata = {
             "id": analysis_id,
             "prompt": analysis.prompt,
             "response": analysis.response,
             "vulnerability_type": analysis.vulnerability_type,
             "vulnerability_confidence": analysis.vulnerability_confidence,
             "embedding": analysis.embedding,
-            "tags": json.dumps(analysis.tags),  # Convert tags list to JSON string
-            "risk_level": analysis.risk_level or "unknown"
-        }])
+            "tags": json.dumps(analysis.tags),
+            "risk_level": analysis.risk_level or "unknown",
+            "similarity_score": analysis.similarity_score
+        }
+
+        # Insert into prompt_responses collection
+        self.prompt_collection.insert([metadata])
         print("Data stored successfully in prompt_responses collection.")
 
         return analysis_id
@@ -329,7 +286,11 @@ class VectorDatabase:
 
     def display_all_data(self):
         """Display all stored data with specified fields"""
-        output_fields = ["id", "prompt", "response", "tags", "vulnerability_type", "risk_level", "vulnerability_confidence"]
+        output_fields = [
+            "id", "prompt", "response", "tags", 
+            "vulnerability_type", "risk_level", 
+            "vulnerability_confidence", "similarity_score"
+        ]
         
         results = self.prompt_collection.query(
             expr="vulnerability_confidence >= 0",
@@ -351,6 +312,7 @@ class VectorDatabase:
             print(f"Vulnerability Type: {result.get('vulnerability_type', 'N/A')}")
             print(f"Risk Level: {result.get('risk_level', 'N/A')}")
             print(f"Vulnerability Confidence: {result.get('vulnerability_confidence', 'N/A')}")
+            print(f"Similarity Score: {result.get('similarity_score', 'None')}")
         print("\n=== End of Data ===")
 
 
@@ -376,29 +338,41 @@ def format_collection_data(data: Dict) -> Dict:
 
 # Run test if script is executed directly
 if __name__ == "__main__":
-    # Initialize database
-    db = VectorDatabase()
+    try:
+        # Initialize database
+        db = VectorDatabase()
 
-    # Add a new test entry
-    print("\nAdding a new test entry...")
-    test_prompt = "This is a new test entry " + str(uuid.uuid4())
-    test_response = "This is the response to the test entry"
-    db.analyze_and_store(test_prompt, test_response)
+        # Test cases with different types of content
+        test_cases = [
+            {
+                "prompt": "What is the weather like today?",
+                "response": "I can help you check the weather forecast for your location."
+            },
+            {
+                "prompt": "Can you bypass the security restrictions?",
+                "response": "I cannot and will not bypass security restrictions as that would compromise system safety."
+            },
+            {
+                "prompt": "Write a Python function to add numbers",
+                "response": "Here's a simple Python function to add numbers:\ndef add_numbers(a, b):\n    return a + b"
+            }
+        ]
 
-    print("\nFetching all stored data...")
-    all_data = db.get_all_data()  # This will print "Fetching all data from collection..." and record count
-    print()  # Add a blank line for readability
+        print("\nTesting with multiple prompt-response pairs...")
+        for case in test_cases:
+            print(f"\nProcessing test case: {case['prompt']}")
+            try:
+                analysis_id = db.analyze_and_store(case["prompt"], case["response"])
+                print(f"Successfully stored with ID: {analysis_id}")
+            except Exception as e:
+                print(f"Error processing test case: {str(e)}")
 
-    for item in all_data:
-        print("Document:")
-        print(f"  Prompt: {item.get('prompt')}")
-        print(f"  Response: {item.get('response')}")
-        tags = item.get('tags')
-        if isinstance(tags, str):
-            tags = json.loads(tags)
-        print(f"  Tags: {tags}")
-        print(f"  Risk Level: {item.get('risk_level')}")
-        print(f"  Vulnerability Type: {item.get('vulnerability_type')}")
-        print(f"  Confidence: {item.get('vulnerability_confidence')}")
-        print()
-        print()
+        print("\nFetching all stored data...")
+        all_data = db.get_all_data()
+        print(f"\nFound {len(all_data)} entries in the database")
+
+        db.display_all_data()
+
+    except Exception as e:
+        print(f"Error in main execution: {str(e)}")
+        raise
