@@ -75,47 +75,63 @@ class SimilarityAnalyzer:
 
     def explain_similarity(self, pair_a: Dict[str, str], pair_b: Dict[str, str]) -> Dict[str, object]:
         """Generate a detailed explanation of similarity between two prompt-response pairs"""
-        # Get vulnerability classifications
-        vuln_a = self.vulnerability_classifier.classify(pair_a["prompt"], pair_a["response"])
-        vuln_b = self.vulnerability_classifier.classify(pair_b["prompt"], pair_b["response"])
-        
-        # Initialize similarity metrics
-        similarity_score = 0.0
-        explanation_points = []
-        
-        # Compare vulnerability types
-        if vuln_a["type"] == vuln_b["type"]:
-            vuln_score = (vuln_a["confidence"] + vuln_b["confidence"]) / 2
-            similarity_score += vuln_score * self.features[0].weight
-            explanation_points.append(
-                f"Both pairs show {vuln_a['type']} vulnerability patterns "
-                f"(confidence: {vuln_score:.2f})"
+        try:
+            # Get vulnerability classifications
+            vuln_a = self.vulnerability_classifier.classify(pair_a["prompt"], pair_a["response"])
+            vuln_b = self.vulnerability_classifier.classify(pair_b["prompt"], pair_b["response"])
+            
+            # Initialize similarity metrics
+            similarity_score = 0.0
+            explanation_points = []
+            
+            # Get vulnerability types safely
+            vuln_type_a = vuln_a.get("vulnerability", vuln_a.get("type", "unknown"))
+            vuln_type_b = vuln_b.get("vulnerability", vuln_b.get("type", "unknown"))
+            vuln_conf_a = vuln_a.get("confidence", 0.0)
+            vuln_conf_b = vuln_b.get("confidence", 0.0)
+            
+            # Compare vulnerability types
+            if vuln_type_a == vuln_type_b and vuln_type_a != "unknown":
+                vuln_score = (vuln_conf_a + vuln_conf_b) / 2
+                similarity_score += vuln_score
+                explanation_points.append(
+                    f"Both pairs show {vuln_type_a} vulnerability patterns "
+                    f"(confidence: {vuln_score:.2f})"
+                )
+            
+            # Analyze prompt similarities
+            intent_score, intent_reasons = self._analyze_intent_similarity(
+                pair_a["prompt"], pair_b["prompt"]
             )
-        
-        # Analyze prompt similarities
-        intent_score, intent_reasons = self._analyze_intent_similarity(
-            pair_a["prompt"], pair_b["prompt"]
-        )
-        similarity_score += intent_score * self.features[1].weight
-        explanation_points.extend(intent_reasons)
-        
-        # Analyze response similarities
-        response_score, response_reasons = self._analyze_response_similarity(
-            pair_a["response"], pair_b["response"]
-        )
-        similarity_score += response_score * self.features[2].weight
-        explanation_points.extend(response_reasons)
-        
-        # Format the explanation
-        explanation = {
-            "similarity_score": round(similarity_score, 2),
-            "explanation": "These prompt-response pairs are similar because:\n- " + 
-                         "\n- ".join(explanation_points),
-            "vulnerability_type": vuln_a["type"] if vuln_a["type"] == vuln_b["type"] else "mixed",
-            "confidence": round((vuln_a["confidence"] + vuln_b["confidence"]) / 2, 2)
-        }
-        
-        return explanation
+            similarity_score += intent_score
+            explanation_points.extend(intent_reasons)
+            
+            # Analyze response similarities
+            response_score, response_reasons = self._analyze_response_similarity(
+                pair_a["response"], pair_b["response"]
+            )
+            similarity_score += response_score
+            explanation_points.extend(response_reasons)
+            
+            # Normalize final score
+            similarity_score = min(similarity_score / 3, 1.0)
+            
+            # Format the explanation
+            return {
+                "similarity_score": round(similarity_score, 2),
+                "explanation": "These prompt-response pairs are similar because:\n- " + 
+                             "\n- ".join(explanation_points) if explanation_points else "No significant similarities found",
+                "vulnerability_type": vuln_type_a if vuln_type_a == vuln_type_b else "mixed",
+                "confidence": round((vuln_conf_a + vuln_conf_b) / 2, 2)
+            }
+        except Exception as e:
+            print(f"Error in similarity analysis: {str(e)}")
+            return {
+                "similarity_score": 0.0,
+                "explanation": "Could not analyze similarities due to an error",
+                "vulnerability_type": "unknown",
+                "confidence": 0.0
+            }
 
 # Example usage
 if __name__ == "__main__":
