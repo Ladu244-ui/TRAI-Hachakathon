@@ -10,257 +10,238 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #250e0e 0%, #450d0d 100%);
+            background: linear-gradient(135deg, #250e0e, #450d0d);
             color: white;
             min-height: 100vh;
         }
 
-        /* Glassmorphism cards */
         .glass {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass:hover {
+            transform: scale(1.02);
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #911414;
+            border-radius: 6px;
         }
     </style>
 </head>
 
-<body class="p-6 space-y-6">
-    <header class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-semibold">Guardrail Sentinel Dashboard</h1>
-        <button id="darkModeToggle" class="px-4 py-2 bg-red-900 rounded hover:bg-red-700 transition">Toggle Dark
+<body class="p-6 space-y-8 transition-colors duration-300">
+    <header class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold tracking-tight">🛡️ Guardrail Sentinel</h1>
+        <button id="darkModeToggle" class="px-4 py-2 rounded bg-red-800 hover:bg-red-600 transition">Toggle Dark
             Mode</button>
     </header>
 
-    <!-- Real-time summary cards -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        <div class="glass p-6 flex flex-col items-center">
-            <h2 class="text-xl font-semibold mb-2">Active Scans</h2>
-            <p id="activeScans" class="text-4xl font-bold">0</p>
+    <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+        <div class="glass p-5 text-center">
+            <h2 class="text-xl font-medium mb-1">Active Scans</h2>
+            <p id="activeScans" class="text-4xl font-bold animate-pulse">0</p>
         </div>
-        <div class="glass p-6 flex flex-col items-center">
-            <h2 class="text-xl font-semibold mb-2">Vulnerabilities Found</h2>
-            <p id="vulnCount" class="text-4xl font-bold">0</p>
-            <small>Critical / High / Medium / Low</small>
-            <p id="vulnBreakdown" class="mt-1 text-sm"></p>
+        <div class="glass p-5 text-center">
+            <h2 class="text-xl font-medium mb-1">Vulnerabilities</h2>
+            <p id="vulnCount" class="text-4xl font-bold animate-pulse">0</p>
+            <p class="text-sm mt-1">Critical / High / Medium / Low</p>
+            <p id="vulnBreakdown" class="text-sm text-gray-300"></p>
         </div>
-        <div class="glass p-6 flex flex-col items-center">
-            <h2 class="text-xl font-semibold mb-2">Time Since Last Scan</h2>
-            <p id="timeSinceLastScan" class="text-4xl font-bold">--</p>
-            <small>minutes ago</small>
+        <div class="glass p-5 text-center">
+            <h2 class="text-xl font-medium mb-1">Last Scan</h2>
+            <p id="timeSinceLastScan" class="text-4xl font-bold animate-pulse">--</p>
+            <p class="text-sm text-gray-300">minutes ago</p>
         </div>
-        <div class="glass p-6 flex flex-col items-center">
-            <h2 class="text-xl font-semibold mb-2">AI Guardrail Score</h2>
-            <canvas id="guardrailScoreChart" width="120" height="120"></canvas>
+        <div class="glass p-5 text-center">
+            <h2 class="text-xl font-medium mb-2">Guardrail Score</h2>
+            <div style="width:120px;height:120px;margin:auto">
+                <canvas id="guardrailScoreChart"></canvas>
+            </div>
             <p id="guardrailScoreValue" class="text-3xl font-bold mt-2">0%</p>
         </div>
     </section>
 
-    <!-- Vulnerability Heatmap -->
-    <section class="glass p-6">
-        <h2 class="text-2xl font-semibold mb-4">Vulnerability Heatmap (Endpoints Risk)</h2>
-        <canvas id="heatmapChart" height="120"></canvas>
+    <section class="glass p-6 mt-6">
+        <h2 class="text-2xl font-semibold mb-4">Endpoint Risk Heatmap</h2>
+        <div style="width:100%;height:300px">
+            <canvas id="heatmapChart"></canvas>
+        </div>
     </section>
 
-    <!-- Scan History Timeline -->
-    <section class="glass p-6">
-        <h2 class="text-2xl font-semibold mb-4">Scan History (Last 30 days)</h2>
-        <canvas id="scanHistoryChart" height="150"></canvas>
+    <section class="glass p-6 mt-6">
+        <h2 class="text-2xl font-semibold mb-4">Scan History (Last 30 Days)</h2>
+        <div style="width:100%;height:350px">
+            <canvas id="scanHistoryChart"></canvas>
+        </div>
     </section>
 
-    <!-- Latest Alerts -->
-    <section class="glass p-6">
-        <h2 class="text-2xl font-semibold mb-4">Latest Alerts & Recommendations</h2>
-        <ul id="alertsList" class="space-y-4 max-h-64 overflow-y-auto"></ul>
+    <section class="glass p-6 mt-6">
+        <h2 class="text-2xl font-semibold mb-4">Latest Alerts & AI Recommendations</h2>
+        <ul id="alertsList" class="space-y-4 max-h-64 overflow-y-auto pr-2"></ul>
     </section>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const dummyData = {
-                activeScans: 3,
-                vulnerabilities: {
-                    critical: 4,
-                    high: 8,
-                    medium: 15,
-                    low: 25,
+        const dummyData = {
+            activeScans: 3,
+            vulnerabilities: { critical: 4, high: 8, medium: 15, low: 25 },
+            lastScanMinutesAgo: 12,
+            guardrailScorePercent: 72,
+            heatmapData: [
+                { endpoint: 'API /v1/chat', risk: 85 },
+                { endpoint: 'Bot A', risk: 65 },
+                { endpoint: 'API /v2/user', risk: 40 },
+                { endpoint: 'Bot B', risk: 30 },
+                { endpoint: 'API /v3/data', risk: 20 },
+            ],
+            scanHistory: {
+                dates: Array.from({ length: 30 }, (_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - (29 - i));
+                    return d.toISOString().slice(0, 10);
+                }),
+                vulnerabilitiesFound: Array.from({ length: 30 }, () => Math.floor(Math.random() * 10)),
+            },
+            alerts: [
+                {
+                    id: 1,
+                    endpoint: 'API /v1/chat',
+                    severity: 'Critical',
+                    description: 'Prompt injection vulnerability allowing arbitrary command execution.',
+                    recommendation: 'Sanitize all user inputs and apply strict regex filtering.',
+                    timestamp: '2025-06-12 14:20',
                 },
-                lastScanMinutesAgo: 12,
-                guardrailScorePercent: 72,
-                heatmapData: [
-                    { endpoint: 'API /v1/chat', risk: 85 },
-                    { endpoint: 'Bot A', risk: 65 },
-                    { endpoint: 'API /v2/user', risk: 40 },
-                    { endpoint: 'Bot B', risk: 30 },
-                    { endpoint: 'API /v3/data', risk: 20 },
-                ],
-                scanHistory: {
-                    dates: Array.from({ length: 30 }, (_, i) => {
-                        const d = new Date();
-                        d.setDate(d.getDate() - (29 - i));
-                        return d.toISOString().slice(0, 10);
-                    }),
-                    vulnerabilitiesFound: Array.from({ length: 30 }, () => Math.floor(Math.random() * 10)),
+                {
+                    id: 2,
+                    endpoint: 'Bot A',
+                    severity: 'High',
+                    description: 'Insufficient guardrail checks on fallback intents.',
+                    recommendation: 'Add comprehensive intent validation and rate limiting.',
+                    timestamp: '2025-06-11 10:35',
                 },
-                alerts: [
-                    {
-                        id: 1,
-                        endpoint: 'API /v1/chat',
-                        severity: 'Critical',
-                        description: 'Prompt injection vulnerability allowing arbitrary command execution.',
-                        recommendation: 'Sanitize all user inputs and apply strict regex filtering.',
-                        timestamp: '2025-06-12 14:20',
-                    },
-                    {
-                        id: 2,
-                        endpoint: 'Bot A',
-                        severity: 'High',
-                        description: 'Insufficient guardrail checks on fallback intents.',
-                        recommendation: 'Add comprehensive intent validation and rate limiting.',
-                        timestamp: '2025-06-11 10:35',
-                    },
-                    {
-                        id: 3,
-                        endpoint: 'API /v2/user',
-                        severity: 'Medium',
-                        description: 'Potential info leak in error messages.',
-                        recommendation: 'Mask sensitive info in error responses.',
-                        timestamp: '2025-06-10 09:12',
-                    },
-                ],
-            };
+                {
+                    id: 3,
+                    endpoint: 'API /v2/user',
+                    severity: 'Medium',
+                    description: 'Potential info leak in error messages.',
+                    recommendation: 'Mask sensitive info in error responses.',
+                    timestamp: '2025-06-10 09:12',
+                },
+            ],
+        };
 
-            // Populate summary cards
-            document.getElementById('activeScans').textContent = dummyData.activeScans;
-            const totalVuln = Object.values(dummyData.vulnerabilities).reduce((a, b) => a + b, 0);
-            document.getElementById('vulnCount').textContent = totalVuln;
-            document.getElementById('vulnBreakdown').textContent = `C:${dummyData.vulnerabilities.critical} H:${dummyData.vulnerabilities.high} M:${dummyData.vulnerabilities.medium} L:${dummyData.vulnerabilities.low}`;
-            document.getElementById('timeSinceLastScan').textContent = dummyData.lastScanMinutesAgo;
+        document.getElementById('activeScans').textContent = dummyData.activeScans;
+        document.getElementById('vulnCount').textContent = Object.values(dummyData.vulnerabilities).reduce((a, b) => a + b);
+        document.getElementById('vulnBreakdown').textContent = `C:${dummyData.vulnerabilities.critical} H:${dummyData.vulnerabilities.high} M:${dummyData.vulnerabilities.medium} L:${dummyData.vulnerabilities.low}`;
+        document.getElementById('timeSinceLastScan').textContent = dummyData.lastScanMinutesAgo;
+        document.getElementById('guardrailScoreValue').textContent = `${dummyData.guardrailScorePercent}%`;
 
-            // Guardrail Score Gauge Chart (doughnut)
-            const guardrailCtx = document.getElementById('guardrailScoreChart').getContext('2d');
-            new Chart(guardrailCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Score', 'Remaining'],
-                    datasets: [{
-                        data: [dummyData.guardrailScorePercent, 100 - dummyData.guardrailScorePercent],
-                        backgroundColor: ['#b91c1c', '#4b5563'],
-                        borderWidth: 0,
-                    }],
-                },
-                options: {
-                    cutout: '80%',
-                    rotation: -90,
-                    circumference: 180,
-                    plugins: {
-                        tooltip: { enabled: false },
-                        legend: { display: false },
-                    },
-                },
-            });
-            document.getElementById('guardrailScoreValue').textContent = `${dummyData.guardrailScorePercent}%`;
+        new Chart(document.getElementById('guardrailScoreChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Score', 'Remaining'],
+                datasets: [{
+                    data: [dummyData.guardrailScorePercent, 100 - dummyData.guardrailScorePercent],
+                    backgroundColor: ['#b91c1c', '#4b5563'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '80%',
+                rotation: -90,
+                circumference: 180,
+                plugins: { tooltip: { enabled: false }, legend: { display: false } }
+            }
+        });
 
-            // Vulnerability Heatmap (bar chart)
-            const heatmapCtx = document.getElementById('heatmapChart').getContext('2d');
-            new Chart(heatmapCtx, {
-                type: 'bar',
-                data: {
-                    labels: dummyData.heatmapData.map(item => item.endpoint),
-                    datasets: [{
-                        label: 'Risk Level (%)',
-                        data: dummyData.heatmapData.map(item => item.risk),
-                        backgroundColor: dummyData.heatmapData.map(item => {
-                            if (item.risk >= 75) return '#b91c1c';
-                            if (item.risk >= 50) return '#f59e0b';
-                            if (item.risk >= 25) return '#3b82f6';
-                            return '#6b7280';
-                        }),
-                    }],
+        new Chart(document.getElementById('heatmapChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: dummyData.heatmapData.map(e => e.endpoint),
+                datasets: [{
+                    label: 'Risk Level (%)',
+                    data: dummyData.heatmapData.map(e => e.risk),
+                    backgroundColor: dummyData.heatmapData.map(e => {
+                        if (e.risk >= 75) return '#dc2626';
+                        if (e.risk >= 50) return '#facc15';
+                        if (e.risk >= 25) return '#3b82f6';
+                        return '#9ca3af';
+                    })
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' } }
                 },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { color: 'white' },
-                        },
-                        x: {
-                            ticks: { color: 'white' },
-                        },
-                    },
-                    plugins: {
-                        legend: { display: false },
-                    },
-                },
-            });
+                plugins: { legend: { display: false } }
+            }
+        });
 
-            // Scan History Line Chart
-            const scanHistoryCtx = document.getElementById('scanHistoryChart').getContext('2d');
-            new Chart(scanHistoryCtx, {
-                type: 'line',
-                data: {
-                    labels: dummyData.scanHistory.dates,
-                    datasets: [{
-                        label: 'Vulnerabilities Found',
-                        data: dummyData.scanHistory.vulnerabilitiesFound,
-                        borderColor: '#b91c1c',
-                        backgroundColor: 'rgba(185, 28, 28, 0.4)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                    }],
+        new Chart(document.getElementById('scanHistoryChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dummyData.scanHistory.dates,
+                datasets: [{
+                    label: 'Vulnerabilities Found',
+                    data: dummyData.scanHistory.vulnerabilitiesFound,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' }, grid: { display: false } }
                 },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: 'white' },
-                        },
-                        x: {
-                            ticks: { color: 'white', maxRotation: 45, minRotation: 45 },
-                            grid: { display: false },
-                        },
-                    },
-                    plugins: {
-                        legend: { labels: { color: 'white' } },
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                },
-            });
+                plugins: { legend: { labels: { color: 'white' } } }
+            }
+        });
 
-            // Alerts List rendering
-            const alertsList = document.getElementById('alertsList');
-            dummyData.alerts.forEach(alert => {
-                const li = document.createElement('li');
-                li.className = 'bg-red-900 bg-opacity-50 p-4 rounded-md space-y-1';
-                li.innerHTML = `
-              <div class="flex justify-between items-center">
-                <h3 class="font-semibold text-lg">${alert.endpoint} - <span class="text-yellow-400">${alert.severity}</span></h3>
-                <time class="text-sm text-gray-300">${alert.timestamp}</time>
-              </div>
-              <p>${alert.description}</p>
-              <p class="italic text-sm text-gray-300">Recommendation: ${alert.recommendation}</p>
-            `;
-                alertsList.appendChild(li);
-            });
+        dummyData.alerts.forEach(alert => {
+            const li = document.createElement('li');
+            li.className = 'bg-red-900 bg-opacity-50 p-4 rounded-md';
+            li.innerHTML = `
+            <div class="flex justify-between items-center mb-1">
+                <span class="font-semibold">${alert.endpoint}</span>
+                <span class="text-yellow-400">${alert.severity}</span>
+            </div>
+            <p>${alert.description}</p>
+            <p class="italic text-sm text-gray-300 mt-1">Recommendation: ${alert.recommendation}</p>
+            <p class="text-xs text-right text-gray-400">${alert.timestamp}</p>
+        `;
+            document.getElementById('alertsList').appendChild(li);
+        });
 
-            // Dark Mode Toggle
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            darkModeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('bg-white');
-                if (document.body.classList.contains('bg-white')) {
-                    document.body.style.background = '#fff';
-                    document.body.style.color = '#111';
-                } else {
-                    document.body.style.background = 'linear-gradient(135deg, #250e0e 0%, #450d0d 100%)';
-                    document.body.style.color = '#fff';
-                }
-            });
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('bg-white');
+            const isLight = document.body.classList.contains('bg-white');
+            document.body.style.background = isLight ? '#fff' : 'linear-gradient(135deg, #250e0e, #450d0d)';
+            document.body.style.color = isLight ? '#111' : '#fff';
         });
     </script>
-
 
 </body>
 

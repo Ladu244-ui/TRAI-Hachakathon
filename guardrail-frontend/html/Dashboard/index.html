@@ -25,12 +25,11 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #250e0e 0%, #450d0d 100%);
+            background: linear-gradient(135deg, #250e0e, #450d0d);
             min-height: 100vh;
             color: #fff;
         }
 
-        /* Glassmorphism with water effect */
         .glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
@@ -64,7 +63,6 @@
             }
         }
 
-        /* Animations */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -103,7 +101,6 @@
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -124,7 +121,6 @@
 </head>
 
 <body class="flex flex-col min-h-screen">
-    <!-- Header -->
     <header
         class="glass w-full px-8 py-4 flex justify-between items-center sticky top-0 z-50 rounded-2xl shadow-lg backdrop-blur-md border border-white/10">
         <div class="flex items-center gap-5">
@@ -138,26 +134,22 @@
                 <i
                     class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-base pointer-events-none"></i>
             </div>
-
             <div class="relative group">
-                <img src="https://via.placeholder.com/44" alt="User Avatar"
+                <img src="https://media.cnn.com/api/v1/images/stellar/prod/240116120407-bill-gates-091323.jpg?c=16x9&q=h_833,w_1480,c_fill"
+                    alt="User Avatar"
                     class="w-11 h-11 rounded-full border-2 border-[var(--primary-color)] object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105" />
             </div>
         </div>
     </header>
 
-    <!-- Layout -->
     <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
         <aside id="sidebar"
             class="glass group/sidebar hover:bg-transparent w-[var(--sidebar-collapsed-width)] min-h-screen p-4 hover:p-6 flex flex-col transition-all duration-[var(--transition-speed)] rounded-r-3xl shadow-md backdrop-blur-lg border-r border-white/10 overflow-hidden"
             aria-label="Main Navigation">
-
             <div class="logo mb-10 text-center">
-                <img src="https://via.placeholder.com/44" alt="Guardrail Sentinel Logo"
+                <img src="../../assets/GuarSentinel_Logo.png" alt="Guardrail Sentinel Logo"
                     class="w-16 mx-auto transition-all duration-300 group-hover/sidebar:w-24" />
             </div>
-
             <nav class="sidebar-menu flex-1">
                 <ul class="space-y-2">
                     <li data-section="pages/dashboard.html"
@@ -194,7 +186,6 @@
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="flex-1 overflow-y-auto bg-gradient-to-b from-white/5 to-transparent p-8">
             <section class="glass rounded-2xl p-8 shadow-lg min-h-[80vh] border border-white/10 content">
                 <!-- Dynamic content loads here -->
@@ -213,33 +204,51 @@
                     const res = await fetch(file);
                     if (!res.ok) throw new Error('Failed to load content');
                     const html = await res.text();
-                    content.innerHTML = html;
+
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bodyContent = doc.body.innerHTML;
+
+                    const scripts = doc.querySelectorAll('script');
+                    scripts.forEach(script => script.remove());
+
+                    content.innerHTML = bodyContent;
                     content.classList.add('fade-in');
+
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                            newScript.async = false;
+                        } else {
+                            newScript.textContent = oldScript.textContent;
+                        }
+                        content.appendChild(newScript);
+                    });
                 } catch (err) {
                     content.innerHTML = '<p class="text-red-400 text-center">Error loading content. Please try again.</p>';
                 }
-
             };
 
             menuItems.forEach(item => {
-                item.addEventListener('click', (e) {
+                item.addEventListener('click', (e) => {
                     e.preventDefault();
                     menuItems.forEach(i => i.classList.remove('active', 'bg-[rgba(255,255,255,0.2)]'));
                     item.classList.add('active', 'bg-[rgba(255,255,255,0.2)]');
 
-                    const icon = document.querySelector('i');
+                    const icon = item.querySelector('i');
                     if (icon) {
                         icon.style.transform = 'scale(1.2)';
                         setTimeout(() => icon.style.transform = 'scale(1)', 200);
                     }
 
-                    const section = section item.getAttribute('data-section');
+                    const section = item.getAttribute('data-section');
                     loadSection(section);
                 });
             });
 
-            // Load default dashboard page
-            const defaultSection = './ppages/';
+            // Load default
+            const defaultSection = 'pages/dashboard.html';
             loadSection(defaultSection);
 
             // Dark mode toggle
@@ -249,9 +258,7 @@
             document.querySelector('header .flex:last-child').appendChild(darkModeToggle);
             darkModeToggle.addEventListener('click', () => {
                 document.body.classList.toggle('dark');
-                darkModeToggle.innerHTML = document.body.classList.contains('dark')
-                    ? '<i class="fas fa-sun"></i>'
-                    : '<i class="fas fa-moon"></i>';
+                darkModeToggle.innerHTML = document.body.classList.contains('dark') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             });
         });
     </script>
