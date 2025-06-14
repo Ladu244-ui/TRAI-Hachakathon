@@ -1,44 +1,21 @@
-from pydantic import BaseModel
-from typing import List
-
-class PromptInput(BaseModel):
-    prompt: str
-
-    def is_empty(self) -> bool:
-        """Check if prompt string is empty or whitespace."""
-        return not self.prompt.strip()
-
-    def summary(self, max_length: int = 50) -> str:
-        """Return a shortened version of the prompt for quick display."""
-        return (self.prompt[:max_length] + '...') if len(self.prompt) > max_length else self.prompt
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any
 
 class InjectionFinding(BaseModel):
-    test_name: str
-    passed: bool
-    reason: str
+    type: str = Field(..., description="Type of injection vulnerability found")
+    severity: str = Field(..., description="Severity level of the finding")
+    description: str = Field(..., description="Detailed description of the finding")
+    location: Dict[str, Any] = Field(..., description="Location information of the finding")
 
-    def toggle_passed(self):
-        """Toggle the passed status."""
-        self.passed = not self.passed
-
-    def __str__(self):
-        status = "PASSED" if self.passed else "FAILED"
-        return f"Test '{self.test_name}': {status} - {self.reason}"
-    
-    def __repr__(self):
-        return f"InjectionFinding(test_name='{self.test_name}', passed={self.passed}, reason='{self.reason}')"
-    
-    def __eq__(self, other):
-        if isinstance(other, InjectionFinding):
-            return self.test_name == other.test_name and self.passed == other.passed and self.reason == other.reason
-        return False
+class PromptInput(BaseModel):
+    prompt: str = Field(..., min_length=1, description="The prompt to be tested")
+    context: str | None = Field(None, description="Additional context for the prompt")
 
 class PromptResult(BaseModel):
     prompt_id: str
-    findings: List[InjectionFinding]
+    findings: List[InjectionFinding] = Field(default_factory=list)
 
     def add_finding(self, finding: InjectionFinding):
-        """Add a new injection finding to the list."""
         self.findings.append(finding)
 
     def passed_count(self) -> int:
