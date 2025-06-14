@@ -11,6 +11,7 @@ Examples:
 
 Input:
 {input}
+Respond with a one-word business category only.
 """
 
 async def classify_business(input_text: str) -> str:
