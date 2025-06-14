@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shoprite Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script async src="https://pay.google.com/gp/p/js/pay.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=Afr23A8b_BG_BHZbxgkoTcdcTp2gbV8fhrLP5nqz7lO29Rs-MM5p_t9s7BnOiWL43b-HNoS7tWSMNMwA&currency=USD"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="max-w-md w-full bg-white shadow-lg rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <p class="text-gray-500 text-sm">Total due</p>
+                <p class="text-3xl font-bold text-blue-600" id="totalAmount">R 0.00</p>
+            </div>
+            <div class="text-right">
+                <p class="text-gray-500 text-sm">Expires in</p>
+                <p id="timer" class="text-2xl font-semibold">30:00</p>
+            </div>
+        </div>
+
+        <p class="text-lg font-semibold mb-4">Pay with</p>
+
+        <div id="gpay-button" class="mb-4"></div>
+
+        <p class="text-center text-gray-500 text-sm mb-4">Or select another way to pay</p>
+
+        <div class="space-y-3">
+            <button onclick="window.location.href='./card-payment.html?plan=ultimate&amount=199.99'"
+                class="w-full flex items-center justify-between border border-gray-300 rounded-lg p-3 hover:bg-gray-50 transition">
+                <span class="font-medium">Credit / Debit card</span>
+                <div class="flex space-x-2">
+                    <img src="https://img.icons8.com/color/32/visa.png" alt="Visa" class="h-5">
+                    <img src="https://img.icons8.com/color/32/mastercard.png" alt="Mastercard" class="h-5">
+                    <img src="https://img.icons8.com/color/32/amex.png" alt="Amex" class="h-5">
+                </div>
+            </button>
+
+
+            <button
+                class="w-full flex items-center justify-between border border-gray-300 rounded-lg p-3 hover:bg-gray-50 transition">
+                <span class="font-medium">Shoprite Money Market</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/846/846449.png" alt="Money Market" class="h-5">
+            </button>
+
+            <button
+                class="w-full flex items-center justify-between border border-gray-300 rounded-lg p-3 hover:bg-gray-50 transition">
+                <span class="font-medium">EFT / Capitec Pay</span>
+                <div class="flex space-x-2">
+                    <img src="https://cdn-icons-png.flaticon.com/512/196/196565.png" alt="EFT" class="h-5">
+                    <img src="./images/New_Capitec.png" alt="Capitec Pay" class="h-5">
+                </div>
+            </button>
+
+            <div class="w-full">
+                <div class="custom-paypal-style flex items-center justify-between mb-4">
+                    <span class="font-medium">Paypal</span>
+                    <img src="./images/RCS.jpg" alt="Paypal" class="h-5">
+                </div>
+                <div id="paypal-button-container"></div>
+            </div>
+
+            <script>
+                // Get amount from URL parameters
+                // update display
+                const urlParams = new URLSearchParams(window.location.search);
+                const amount = urlParams.get('amount') || '10.00';
+                const cartData = JSON.parse(decodeURIComponent(urlParams.get('cart') || '[]'));
+
+                // Display amount in ZAR 
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.getElementById('totalAmount').textContent = `R ${parseFloat(amount).toFixed(2)}`;
+                });
+
+                let timer = 1800;
+
+                const plan = urlParams.get('plan');
+                console.log('Plan:', plan);
+
+                //convert ZAR to USD 
+                async function convertZARtoUSD(zarAmount) {
+                    try {
+                        const response = await fetch('https://api.exchangerate-api.com/v4/latest/ZAR');
+                        const data = await response.json();
+                        const zarToUsdRate = data.rates.USD;
+                        const usdAmount = (parseFloat(zarAmount) * zarToUsdRate).toFixed(2);
+                        return usdAmount;
+                    } catch (error) {
+                        console.error('Currency conversion error:', error);
+                        return (parseFloat(zarAmount) * 0.053).toFixed(2);
+                    }
+                }
+
+                paypal.Buttons({
+                    style: {
+                        layout: 'horizontal',
+                        color: 'blue',
+                        shape: 'rect',
+                        label: 'paypal'
+                    },
+                    createOrder: async function(data, actions) {
+                        const usdAmount = await convertZARtoUSD(amount); 
+                        console.log(`Converting R${amount} to $${usdAmount}`);
+                        
+                        return actions.order.create({
+                            purchase_units: [{
+                                amount: {
+                                    currency_code: 'USD',
+                                    value: usdAmount
+                                }
+                            }]
+                        });
+                    },
+                    onApprove: async function(data, actions) {
+                        return actions.order.capture()
+                            .then(async function(details) {
+                                console.log('Transaction completed:', details);
+                                
+                                const payer = details.payer;
+                                const customerData = {
+                                    first_name: payer.name.given_name,
+                                    last_name: payer.name.surname,
+                                    email: payer.email_address,
+                                    business_id: 1 
+                                };
+
+                                const orderNumber = 'ORD-' + Date.now();
+                                const orderTotal = parseFloat(amount);
+
+                                const paymentData = {
+                                    customerDetails: customerData,
+                                    orderDetails: {
+                                        order_number: orderNumber,
+                                        order_total: orderTotal
+                                    },
+                                    paymentDetails: {
+                                        payment_method: 'PayPal',
+                                        amount: orderTotal,
+                                        usd_amount: details.purchase_units[0].amount.value,
+                                        paypal_order_id: details.id
+                                    },
+                                    purchaseDetails: cartData.map(item => ({
+                                        product_id: item.id,
+                                        quantity: item.qty,
+                                        unit_price: item.price,
+                                        business_id: 1
+                                    }))
+                                };
+
+                                return fetch('https://my-backend-production-a38d.up.railway.app/api/payments/process-payment', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(paymentData)
+                                });
+                            })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: `Payment successful! Order number: ${result.orderNumber}`,
+                                        icon: 'success',
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        window.location.href = '../Sales & Orders/New Sale (POS)/index.html';
+                                    });
+                                } else {
+                                    alert('Payment failed: ' + result.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Payment failed');
+                            });
+                    }
+                }).render('#paypal-button-container');
+            </script>
+        </div>
+
+        <div class="flex items-center justify-center mt-6">
+            <div class="flex items-center bg-gray-100 rounded-full px-3 py-1">
+                <svg class="w-4 h-4 text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-7l5-5-1.414-1.414L9 8.172 7.414 6.586 6 8l3 3z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm text-gray-600">This is a secure site</span>
+            </div>
+        </div>
+
+        <p class="text-xs text-gray-400 text-center mt-4">Gift card payments are unavailable online. Use them in
+            Shoprite stores.</p>
+
+    </div>
+
+    <script>
+        const timerDisplay = document.getElementById('timer');
+        setInterval(() => {
+            if (timer <= 0) return;
+            timer--;
+            const minutes = Math.floor(timer / 60).toString().padStart(2, '0');
+            const seconds = (timer % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+        }, 1000);
+    </script>
+
+    <script>
+        function onGooglePayLoaded() {
+            const paymentsClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+
+            const isReadyToPayRequest = {
+                apiVersion: 2,
+                apiVersionMinor: 0,
+                allowedPaymentMethods: [{
+                    type: 'CARD',
+                    parameters: {
+                        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                        allowedCardNetworks: ['VISA', 'MASTERCARD', 'AMEX']
+                    },
+                    tokenizationSpecification: {
+                        type: 'PAYMENT_GATEWAY',
+                        parameters: {
+                            gateway: 'example',
+                            gatewayMerchantId: 'exampleMerchantId'
+                        }
+                    }
+                }]
+            };
+
+            paymentsClient.isReadyToPay(isReadyToPayRequest)
+                .then(response => {
+                    if (response.result) {
+                        const button = paymentsClient.createButton({
+                            onClick: onGooglePaymentButtonClicked,
+                            buttonColor: 'black',
+                            buttonType: 'buy'
+                        });
+                        document.getElementById('gpay-button').appendChild(button);
+                    }
+                });
+        }
+
+        function getGooglePaymentDataRequest() {
+            return {
+                apiVersion: 2,
+                apiVersionMinor: 0,
+                allowedPaymentMethods: [{
+                    type: 'CARD',
+                    parameters: {
+                        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                        allowedCardNetworks: ['VISA', 'MASTERCARD', 'AMEX']
+                    },
+                    tokenizationSpecification: {
+                        type: 'PAYMENT_GATEWAY',
+                        parameters: {
+                            gateway: 'example',
+                            gatewayMerchantId: 'exampleMerchantId'
+                        }
+                    }
+                }],
+                merchantInfo: {
+                    merchantId: '01234567890123456789',
+                    merchantName: 'Shoprite Test Store'
+                },
+                transactionInfo: {
+                    totalPriceStatus: 'FINAL',
+                    totalPrice: amount,
+                    currencyCode: 'ZAR',
+                    countryCode: 'ZA'
+                }
+            };
+        }
+
+        function onGooglePaymentButtonClicked() {
+            const paymentsClient = new google.payments.api.PaymentsClient({ environment: 'TEST' });
+            const paymentDataRequest = getGooglePaymentDataRequest();
+
+            paymentsClient.loadPaymentData(paymentDataRequest)
+                .then(paymentData => {
+                    console.log('Payment Success:', paymentData);
+                    alert('Payment successful!');
+                })
+                .catch(err => {
+                    console.error('Payment Error:', err);
+                });
+        }
+
+        window.addEventListener('load', () => {
+            if (window.google) {
+                onGooglePayLoaded();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
