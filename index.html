@@ -1,1 +1,543 @@
-<!-- LANDING PAGE -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="JobIQ - The best API scanner for secure and efficient API analysis." />
+    <meta name="keywords" content="API scanner, JobIQ, security, API testing" />
+    <meta name="author" content="JobIQ" />
+    <title>JobIQ Landing Page</title>
+    <link rel="icon" type="image/png" href="./guardrail-frontend/assets/favicon.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@700&display=swap" />
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Arial', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: white;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            background-color: #0a0a0a;
+        }
+
+        .landing-container {
+            position: relative;
+            overflow: hidden;
+            color: white;
+            padding: 7.5rem 0 4rem;
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            object-position: center center;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.821);
+            z-index: 0;
+        }
+
+        .background-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: url("https://www.transparenttextures.com/patterns/connected.png");
+            background-repeat: repeat;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .content-box,
+        .landing-header {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        .landing-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5vw;
+            background: rgba(15, 15, 15, 0.101);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, transform 0.3s ease;
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: headerFadeIn 0.9s ease forwards;
+            will-change: background-color, box-shadow, transform;
+        }
+
+        .landing-header:hover {
+            background: rgba(25, 25, 25, 0.5);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+            cursor: pointer;
+        }
+
+        body.scrolled .landing-header {
+            background: rgba(10, 10, 10, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            padding: 0.75rem 5vw;
+        }
+
+        /* Keyframe for header fade in */
+        @keyframes headerFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-left .logo {
+            height: 2.75rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .header-left .logo:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-center a {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.02rem;
+            transition: color 0.3s ease, transform 0.2s ease, text-shadow 0.3s ease;
+        }
+
+        .nav-center a:hover,
+        .nav-center a:focus-visible {
+            color: #fff;
+            transform: translateY(-2px);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.35);
+            outline: none;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, #0040ff, #801010);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-btn:hover,
+        .cta-btn:focus-visible {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(182, 22, 22, 0.5);
+            outline: none;
+        }
+
+        .cta-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Content */
+        .content-box {
+            max-width: 800px;
+            width: 90vw;
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .heading {
+            font-family: 'Roboto', 'Inter', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            color: #950303;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.25);
+            letter-spacing: -0.02rem;
+        }
+
+        .subtext {
+            color: #cbd5e0;
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            margin-bottom: 1.8rem;
+            line-height: 1.6;
+            letter-spacing: 0.01rem;
+        }
+
+        /* Glow Box */
+        .glow-box {
+            border-radius: 0.75rem;
+            background-color: #1c1c1e;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            transition: filter 0.3s ease;
+        }
+
+        .glow-box.blurred {
+            filter: blur(3px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .glow-box textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: transparent;
+            color: white;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            resize: none;
+            font-size: 1rem;
+            line-height: 1.5;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glow-box textarea:focus {
+            border-color: #fb3c3c;
+            box-shadow: 0 0 10px #f60404;
+            outline: none;
+        }
+
+        .upload-section {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.625rem;
+            background-color: #4a5568;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .upload-btn:hover,
+        .upload-btn:focus-visible {
+            background-color: #fd05059a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
+        }
+
+        .file-name {
+            display: block;
+            margin-left: 1rem;
+            font-size: 1rem;
+            color: #4a5568;
+            word-break: break-word;
+            max-width: 60vw;
+        }
+
+        .upload-progress {
+            margin-top: 1rem;
+            height: 0.375rem;
+            background-color: #2d3748;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #10b981;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .submit-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.25rem;
+        }
+
+        .submit-btn {
+            padding: 0.6rem 1.2rem;
+            background-color: #2d3748;
+            color: white;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .submit-btn:hover,
+        .submit-btn:focus-visible {
+            background-color: #1a202c;
+            transform: scale(1.05);
+            outline: none;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loader-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 1s linear infinite;
+            margin: 0.625rem auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 767px) {
+            .desktop-only {
+                display: none;
+            }
+
+            .landing-container {
+                padding: 4rem 0;
+            }
+
+            .content-box {
+                width: 95vw;
+            }
+
+            .heading {
+                font-size: clamp(1.75rem, 4vw, 2.25rem);
+            }
+
+            .subtext {
+                font-size: clamp(0.875rem, 2vw, 1rem);
+            }
+
+            .nav-center {
+                gap: 1rem;
+            }
+
+            .nav-center a {
+                font-size: 0.875rem;
+            }
+
+            .cta-btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-only {
+                display: none;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <section class="landing-container" aria-label="JobIQ Landing Section">
+        <video autoplay muted loop playsinline class="video-background" aria-hidden="true" tabindex="-1">
+            <source src="./guardrail-frontend/assets/LandingVideo.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+
+        <header class="landing-header" role="banner">
+            <div class="header-left">
+                <img src="./guardrail-frontend/assets/GuarSentinel_Logo.png" alt="JobIQ Logo" class="logo"
+                    tabindex="0" />
+            </div>
+            <nav class="nav-center" aria-label="Primary navigation">
+                <a href="#features" tabindex="0">Features</a>
+                <a href="#testimonials" tabindex="0">Testimonials</a>
+                <a href="#contact" tabindex="0">Contact</a>
+            </nav>
+            <div class="header-right">
+                <button class="cta-btn" onclick="navigateTo('./guardrail-frontend/html/Auth/login.html')"
+                    aria-label="Login to JobIQ">Login</button>
+            </div>
+        </header>
+
+        <div class="background-pattern" aria-hidden="true"></div>
+
+        <div class="content-box">
+            <h1 class="heading">Welcome to the Best API Scanner</h1>
+            <p class="subtext">Securely analyze and test your APIs with JobIQ's cutting-edge scanning technology.</p>
+
+            <div id="glowBox" class="glow-box" role="form" aria-live="polite">
+                <textarea id="promptInput" rows="3" placeholder="Enter your prompt here"
+                    aria-label="API scan prompt"></textarea>
+                <div class="upload-section">
+                    <input type="file" id="fileInput" class="hidden-input" accept=".txt,.json,.pdf"
+                        onchange="handleFileChange(event)" aria-label="Upload file for API scan" />
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()"
+                        aria-label="Upload file">
+                        <i class="fa-solid fa-upload" aria-hidden="true"></i> Upload File
+                    </button>
+                    <span id="fileName" class="file-name" aria-live="polite" role="status"></span>
+                </div>
+                <div id="uploadProgress" class="upload-progress" aria-hidden="true">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div id="loader" class="loader-spinner" role="status" aria-live="assertive" aria-label="Loading"></div>
+                <div class="submit-row">
+                    <button class="submit-btn" id="nextBtn" onclick="handleNext()" disabled aria-disabled="true">
+                        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Start Scanning
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let fileProgress = 0;
+        let interval;
+        let loading = false;
+        let prompt = '';
+
+        const promptInput = document.getElementById("promptInput");
+        const fileInput = document.getElementById("fileInput");
+        const fileNameLabel = document.getElementById("fileName");
+        const progressBar = document.getElementById("progressBar");
+        const uploadProgress = document.getElementById("uploadProgress");
+        const loader = document.getElementById("loader");
+        const glowBox = document.getElementById("glowBox");
+        const nextBtn = document.getElementById("nextBtn");
+
+        promptInput.addEventListener("input", (e) => {
+            prompt = e.target.value.trim();
+            nextBtn.disabled = prompt.length === 0 && !fileInput.files[0];
+            nextBtn.setAttribute('aria-disabled', nextBtn.disabled);
+        });
+
+        function handleFileChange(e) {
+            const file = e.target.files[0];
+            if (!file) {
+                fileNameLabel.textContent = '';
+                nextBtn.disabled = prompt.length === 0;
+                nextBtn.setAttribute('aria-disabled', nextBtn.disabled);
+                return;
+            }
+
+            fileNameLabel.textContent = file.name;
+            fileProgress = 0;
+            progressBar.style.width = "0%";
+            uploadProgress.style.display = "block";
+            loader.style.display = "block";
+            glowBox.classList.add("blurred");
+            nextBtn.disabled = true;
+            nextBtn.setAttribute('aria-disabled', true);
+            promptInput.disabled = true;
+            loading = true;
+
+            interval = setInterval(() => {
+                fileProgress += 10;
+                progressBar.style.width = `${fileProgress}%`;
+
+                if (fileProgress >= 100) {
+                    clearInterval(interval);
+                    uploadProgress.style.display = "none";
+                    loader.style.display = "none";
+                    glowBox.classList.remove("blurred");
+                    nextBtn.disabled = prompt.length === 0;
+                    nextBtn.setAttribute('aria-disabled', nextBtn.disabled);
+                    promptInput.disabled = false;
+                    loading = false;
+                }
+            }, 200);
+        }
+
+        function handleNext() {
+            if (loading || (prompt.length === 0 && !fileInput.files[0])) {
+                alert("Please enter a prompt or upload a file before proceeding.");
+                return;
+            }
+
+            let redirectUrl = "registration.html";
+
+            if (prompt.length > 0) {
+                redirectUrl += `?prompt=${encodeURIComponent(prompt)}`;
+            }
+
+            window.location.href = redirectUrl;
+        }
+
+        function navigateTo(path) {
+            window.location.href = path;
+        }
+
+        window.addEventListener("scroll", () => {
+            document.body.classList.toggle("scrolled", window.scrollY > 50);
+        });
+    </script>
+</body>
+
+</html>
