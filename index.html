@@ -55,12 +55,13 @@
             transform: translate(-50%, -50%);
             z-index: -1;
             pointer-events: none;
+            filter: brightness(0.5) blur(2px);
         }
 
         .video-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.821);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 0;
         }
 
@@ -214,10 +215,10 @@
         /* Glow Box */
         .glow-box {
             border-radius: 0.75rem;
-            background-color: #1c1c1e;
+            background-color: #1c1c1ea7;
             padding: 1.5rem;
             box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             transition: filter 0.3s ease;
         }
 
@@ -229,14 +230,15 @@
 
         .glow-box textarea {
             width: 100%;
+            height: 5rem;
             padding: 0.75rem;
             background-color: transparent;
             color: white;
             border: 2px solid #4a5568;
             border-radius: 8px;
             resize: none;
-            font-size: 1rem;
-            line-height: 1.5;
+            font-size: 2rem;
+            line-height: 1;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -337,15 +339,56 @@
             cursor: not-allowed;
         }
 
+        /* Existing loader for file upload */
         .loader-spinner {
+            position: relative;
+            width: 2.5rem;
+            height: 2.5rem;
             border: 4px solid #f3f3f3;
             border-top: 4px solid #007bff;
             border-radius: 50%;
-            width: 1.5rem;
-            height: 1.5rem;
             animation: spin 1s linear infinite;
             margin: 0.625rem auto;
             display: none;
+            background-image: url('./guardrail-frontend/assets/GuarSentinel_Logo.png');
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* New page load spinner */
+        .page-load-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .page-load-spinner.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .page-load-spinner .spinner {
+            position: relative;
+            width: 4rem;
+            height: 4rem;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            background-image: url('./guardrail-frontend/assets/GuarSentinel_Logo.png');
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         @keyframes spin {
@@ -404,6 +447,11 @@
 </head>
 
 <body>
+    <!-- Page Load Spinner -->
+    <div id="pageLoadSpinner" class="page-load-spinner" role="status" aria-live="assertive" aria-label="Loading page">
+        <div class="spinner"></div>
+    </div>
+
     <section class="landing-container" aria-label="JobIQ Landing Section">
         <video autoplay muted loop playsinline class="video-background" aria-hidden="true" tabindex="-1">
             <source src="./guardrail-frontend/assets/LandingVideo.mp4" type="video/mp4" />
@@ -433,7 +481,7 @@
             <p class="subtext">Securely analyze and test your APIs with JobIQ's cutting-edge scanning technology.</p>
 
             <div id="glowBox" class="glow-box" role="form" aria-live="polite">
-                <textarea id="promptInput" rows="3" placeholder="Enter your prompt here"
+                <textarea id="promptInput" rows="1" placeholder="Enter your prompt here"
                     aria-label="API scan prompt"></textarea>
                 <div class="upload-section">
                     <input type="file" id="fileInput" class="hidden-input" accept=".txt,.json,.pdf"
@@ -471,6 +519,14 @@
         const loader = document.getElementById("loader");
         const glowBox = document.getElementById("glowBox");
         const nextBtn = document.getElementById("nextBtn");
+        const pageLoadSpinner = document.getElementById("pageLoadSpinner");
+
+        // Hide page load spinner after 2 seconds
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                pageLoadSpinner.classList.add("hidden");
+            }, 2000);
+        });
 
         promptInput.addEventListener("input", (e) => {
             prompt = e.target.value.trim();
