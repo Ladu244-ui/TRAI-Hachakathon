@@ -1,32 +1,41 @@
 import uuid
 from typing import List
-from .models import InjectionFinding
+from app.model import InjectionFinding
 
-# 🚩  Very naive tests for now; we’ll expand later
-KNOWN_ATTACKS = [
-    ("override_instructions", "ignore previous instructions"),
-    ("system_role_injection", '{"role": "system"}'),
-]
+# Dictionary mapping test types to their severity levels and descriptions
+KNOWN_ATTACKS = {
+    "override_instructions": {
+        "pattern": "ignore previous instructions",
+        "severity": "HIGH",
+        "description": "Attempt to override system instructions detected"
+    },
+    "system_role_injection": {
+        "pattern": '{"role": "system"}',
+        "severity": "CRITICAL",
+        "description": "Attempt to inject system role detected"
+    }
+}
 
 def run_tests(prompt: str) -> List[InjectionFinding]:
     findings = []
-    for name, needle in KNOWN_ATTACKS:
-        if needle.lower() in prompt.lower():
+    for test_type, test_info in KNOWN_ATTACKS.items():
+        location = {
+            "start": prompt.lower().find(test_info["pattern"].lower()),
+            "end": -1,
+            "context": prompt
+        }
+        
+        if location["start"] != -1:
+            location["end"] = location["start"] + len(test_info["pattern"])
             findings.append(
                 InjectionFinding(
-                    test_name=name,
-                    passed=False,
-                    reason=f"Matched pattern: {needle}"
+                    type=test_type,
+                    severity=test_info["severity"],
+                    description=test_info["description"],
+                    location=location
                 )
             )
-        else:
-            findings.append(
-                InjectionFinding(
-                    test_name=name,
-                    passed=True,
-                    reason="No match"
-                )
-            )
+
     return findings
 
 def new_prompt_id() -> str:
