@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Prompt Embedding Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Prompt & Response Embedding</h1>
+    <form id="embed-form">
+        <label>Prompt:</label>
+        <textarea name="prompt" rows="3" required></textarea>
+
+        <label>Response:</label>
+        <textarea name="response" rows="3" required></textarea>
+
+        <button type="submit">Generate Embedding</button>
+    </form>
+
+    <h2>Result</h2>
+    <pre id="result">No embedding generated yet.</pre>
+
+    <script>
+        document.getElementById('embed-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const res = await fetch('/embed', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        });
+    </script>
+</body>
+
+</html>
