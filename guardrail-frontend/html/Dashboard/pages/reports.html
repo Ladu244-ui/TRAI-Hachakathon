@@ -3,22 +3,110 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Access and download detailed security audit reports from Guardrail Sentinel.">
     <title>Reports - Guardrail Sentinel</title>
-    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+    </style>
 </head>
 
-<body>
-    <div class="fade-in glass rounded-2xl p-8">
-        <h2 class="text-3xl font-semibold mb-6">Reports</h2>
-        <p class="text-white/80">Access and download detailed security audit reports. Each report includes analysis and
-            recommendations.</p>
-        <ul class="mt-6 space-y-4">
-            <li class="bg-white/10 rounded-xl px-6 py-4 hover:bg-white/20 transition">
-                <span class="font-medium">Report - June 2025</span> <span
-                    class="text-sm text-white/60 ml-4">Completed</span>
-            </li>
-        </ul>
-    </div>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div class="fade-in glass rounded-2xl p-8">
+            <h2 class="text-3xl font-semibold mb-4">Security Audit Reports</h2>
+            <p class="text-gray-300 mb-6">Access and download detailed security audit reports. Each report includes
+                in-depth analysis, vulnerabilities identified, and actionable recommendations to enhance your system's
+                security.</p>
+
+            <div class="mt-6 space-y-4">
+                <div class="bg-white/10 rounded-xl px-6 py-4 hover-scale hover:bg-white/20 flex justify-between items-center"
+                    role="listitem" aria-label="June 2025 Report">
+                    <div>
+                        <span class="font-medium text-lg">Security Audit Report - June 2025</span>
+                        <span class="text-sm text-gray-400 ml-4">Completed on June 10, 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-green-400 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Completed
+                        </span>
+                        <button onclick="downloadReport('June_2025_Report.pdf')"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">Download</button>
+                    </div>
+                </div>
+                <div class="bg-white/10 rounded-xl px-6 py-4 hover-scale hover:bg-white/20 flex justify-between items-center"
+                    role="listitem" aria-label="May 2025 Report">
+                    <div>
+                        <span class="font-medium text-lg">Security Audit Report - May 2025</span>
+                        <span class="text-sm text-gray-400 ml-4">Completed on May 5, 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-green-400 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Completed
+                        </span>
+                        <button onclick="downloadReport('May_2025_Report.pdf')"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800/50 border-t border-gray-700 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+            <p>&copy; 2025 Guardrail Sentinel. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Download Functionality -->
+    <script>
+        function downloadReport(filename) {
+            // Simulate download (replace with actual download logic)
+            alert(`Downloading ${filename}...`);
+            // Example: window.location.href = `/reports/${filename}`;
+        }
+    </script>
 </body>
 
 </html>

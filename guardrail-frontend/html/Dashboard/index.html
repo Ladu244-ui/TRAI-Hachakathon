@@ -98,7 +98,6 @@
             display: inline-block;
         }
 
-
         .card:hover {
             transform: translateY(-8px) scale(1.02);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
@@ -135,13 +134,13 @@
         <div class="flex items-center gap-6">
             <div class="relative">
                 <input type="text" placeholder="Search..."
-                    class="glass w-64 pl-11 pr-4 py-2 rounded-full text-white bg-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition duration-200" />
+                    class="glass w-64 pl-11 pr-4 py-2 rounded-full text-white bg-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-all duration-200" />
                 <i
                     class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-base pointer-events-none"></i>
             </div>
 
             <div class="relative group">
-                <img src="../../assets/GuarSentinel_Logo.png" alt="User Avatar"
+                <img src="https://via.placeholder.com/44" alt="User Avatar"
                     class="w-11 h-11 rounded-full border-2 border-[var(--primary-color)] object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105" />
             </div>
         </div>
@@ -151,11 +150,11 @@
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <aside id="sidebar"
-            class="glass group/sidebar hover:w-[var(--sidebar-width)] w-[var(--sidebar-collapsed-width)] min-h-screen p-4 hover:p-6 flex flex-col transition-all duration-[var(--transition-speed)] rounded-r-3xl shadow-md backdrop-blur-lg border-r border-white/10 overflow-hidden"
+            class="glass group/sidebar hover:bg-transparent w-[var(--sidebar-collapsed-width)] min-h-screen p-4 hover:p-6 flex flex-col transition-all duration-[var(--transition-speed)] rounded-r-3xl shadow-md backdrop-blur-lg border-r border-white/10 overflow-hidden"
             aria-label="Main Navigation">
 
             <div class="logo mb-10 text-center">
-                <img src="../../assets/GuarSentinel_Logo.png" alt="Guardrail Sentinel Logo"
+                <img src="https://via.placeholder.com/44" alt="Guardrail Sentinel Logo"
                     class="w-16 mx-auto transition-all duration-300 group-hover/sidebar:w-24" />
             </div>
 
@@ -171,8 +170,7 @@
                         class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
                         <i class="fas fa-bug-slash text-lg"></i>
                         <span
-                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Run
-                            Scan</span>
+                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Scan</span>
                     </li>
                     <li data-section="pages/reports.html"
                         class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
@@ -184,8 +182,7 @@
                         class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
                         <i class="fas fa-clock-rotate-left text-lg"></i>
                         <span
-                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">Scan
-                            History</span>
+                            class="sidebar-label hidden group-hover/sidebar:inline-block transition-opacity duration-300">History</span>
                     </li>
                     <li data-section="pages/settings.html"
                         class="flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer text-white font-medium hover:bg-white/15 transition-all duration-200">
@@ -197,7 +194,6 @@
             </nav>
         </aside>
 
-
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto bg-gradient-to-b from-white/5 to-transparent p-8">
             <section class="glass rounded-2xl p-8 shadow-lg min-h-[80vh] border border-white/10 content">
@@ -206,56 +202,47 @@
         </main>
     </div>
 
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const menuItems = document.querySelectorAll('.sidebar-menu li');
             const content = document.querySelector('.content');
-            const sidebar = document.getElementById('sidebar');
-            const toggleSidebar = document.getElementById('toggleSidebar');
-            let isSidebarCollapsed = false;
 
             const loadSection = async (file) => {
                 content.classList.remove('fade-in');
                 try {
                     const res = await fetch(file);
+                    if (!res.ok) throw new Error('Failed to load content');
                     const html = await res.text();
                     content.innerHTML = html;
                     content.classList.add('fade-in');
                 } catch (err) {
-                    content.innerHTML = '<p class="text-red-400">Error loading content.</p>';
+                    content.innerHTML = '<p class="text-red-400 text-center">Error loading content. Please try again.</p>';
                 }
+
             };
 
             menuItems.forEach(item => {
-                item.addEventListener('click', (e) => {
+                item.addEventListener('click', (e) {
                     e.preventDefault();
                     menuItems.forEach(i => i.classList.remove('active', 'bg-[rgba(255,255,255,0.2)]'));
                     item.classList.add('active', 'bg-[rgba(255,255,255,0.2)]');
 
-                    const icon = item.querySelector('i');
-                    icon.style.transform = 'scale(1.2)';
-                    setTimeout(() => icon.style.transform = 'scale(1)', 200);
+                    const icon = document.querySelector('i');
+                    if (icon) {
+                        icon.style.transform = 'scale(1.2)';
+                        setTimeout(() => icon.style.transform = 'scale(1)', 200);
+                    }
 
-                    const section = item.getAttribute('data-section');
+                    const section = section item.getAttribute('data-section');
                     loadSection(section);
                 });
             });
 
-            toggleSidebar.addEventListener('click', () => {
-                isSidebarCollapsed = !isSidebarCollapsed;
-                sidebar.style.width = isSidebarCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)';
-                document.querySelectorAll('.sidebar-menu span, .user-info').forEach(el => {
-                    el.style.display = isSidebarCollapsed ? 'none' : 'block';
-                });
-                document.querySelector('.logo img').style.width = isSidebarCollapsed ? '40px' : '96px';
-            });
+            // Load default dashboard page
+            const defaultSection = './ppages/';
+            loadSection(defaultSection);
 
-            // Default load dashboard
-            const defaultSection = document.querySelector('.sidebar-menu li.active')?.getAttribute('data-section');
-            if (defaultSection) loadSection(defaultSection);
-
-            // Dark mode toggle (optional feature)
+            // Dark mode toggle
             const darkModeToggle = document.createElement('button');
             darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
             darkModeToggle.className = 'text-white p-2 rounded-full hover:bg-[rgba(255,255,255,0.1)]';
