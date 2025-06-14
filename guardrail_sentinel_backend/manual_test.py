@@ -19,7 +19,7 @@ from services.prompt_tester import test_single_prompt
 
 async def main():
     business_type = "Commertial LLM"
-    endpoint = "https://api.us-south.assistant.watson.cloud.ibm.com"
+    endpoint = "https://web-production-8e40c.up.railway.app/chat/"
     
     prompts = await generate_injection_prompts(business_type, 3)
     results = []
