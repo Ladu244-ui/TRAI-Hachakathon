@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Analysis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-black py-12 px-4 sm:px-6 lg:px-8">
+
+  <div class="max-w-3xl mx-auto">
+    <div class="bg-black border-2 border-red-600 shadow-lg rounded-lg p-8" id="analysis-container">
+      <h2 class="text-2xl font-bold text-white mb-8 text-center">Security Analysis in Progress</h2>
+
+      <div class="space-y-6" id="checks-list">
+        <!-- Checks will be injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const checks = [
+      "Scanning endpoint configuration...",
+      "Analyzing authentication methods...",
+      "Testing input validation...",
+      "Checking prompt injection vulnerabilities...",
+      "Validating rate limiting...",
+      "Examining response handling...",
+    ];
+
+    const findings = [
+      { type: "warning", text: "Your API accepts Base64-override commands" },
+      { type: "warning", text: "No rate limiting detected on endpoint" },
+      { type: "warning", text: "Weak input validation for prompt parameters" },
+      { type: "success", text: "Authentication mechanism properly implemented" },
+      { type: "success", text: "Response sanitization in place" },
+    ];
+
+    const checksList = document.getElementById("checks-list");
+
+    function createCheckItem(text) {
+      const item = document.createElement("div");
+      item.className = "flex items-center space-x-3";
+
+      const icon = document.createElement("div");
+      icon.className = "flex-shrink-0 h-6 w-6 text-gray-400";
+      icon.innerHTML = `
+        <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+            stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+      `;
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "text-lg text-gray-300";
+      textSpan.textContent = text;
+
+      item.appendChild(icon);
+      item.appendChild(textSpan);
+
+      return { item, icon, textSpan };
+    }
+
+    function markAsDone(icon, textSpan) {
+      icon.innerHTML = `
+        <svg class="h-6 w-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+            clip-rule="evenodd" />
+        </svg>
+      `;
+      textSpan.classList.remove("text-gray-300");
+      textSpan.classList.add("text-white");
+    }
+
+    const checkElements = checks.map((text) => {
+      const { item, icon, textSpan } = createCheckItem(text);
+      checksList.appendChild(item);
+      return { icon, textSpan };
+    });
+
+    let currentCheck = 0;
+    const interval = setInterval(() => {
+      if (currentCheck < checkElements.length) {
+        const { icon, textSpan } = checkElements[currentCheck];
+        markAsDone(icon, textSpan);
+        currentCheck++;
+      } else {
+        clearInterval(interval);
+        showReport();
+      }
+    }, 1500);
+
+    function showReport() {
+      document.getElementById("analysis-container").innerHTML = `
+        <h2 class="text-2xl font-bold text-white mb-8 text-center">Security Analysis Report</h2>
+        <div class="space-y-6">
+          <div class="border-t border-b border-red-600 py-6">
+            <h3 class="text-xl font-semibold text-white mb-4">Findings</h3>
+            <div class="space-y-3">
+              ${findings.map(f => `
+                <div class="flex items-center space-x-3">
+                  <div class="h-5 w-5 ${f.type === "warning" ? "text-red-500" : "text-green-500"
+        }">
+                    ${f.type === "warning"
+          ? `<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.366-.446.974-.446 1.34 0l6.518 7.939c.386.47.063 1.137-.57 1.137H2.31c-.633 0-.956-.667-.57-1.137L8.257 3.1zM11 13a1 1 0 10-2 0 1 1 0 002 0zm-1-2a.75.75 0 01-.75-.75V8a.75.75 0 011.5 0v2.25A.75.75 0 0110 11z" clip-rule="evenodd"/></svg>`
+          : `<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>`
+        }
+                  </div>
+                  <span class="text-lg text-gray-300">${f.text}</span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+  <script>
+    setTimeout(() => {
+      window.location.href = '../Dashboard/index.html';
+    }, 14000);
+  </script>
+</body>
+
+</html>
