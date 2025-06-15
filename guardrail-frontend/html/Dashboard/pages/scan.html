@@ -253,22 +253,8 @@
         const toastMessage = document.getElementById('toastMessage');
 
         // State Management
-        let scanHistory = [];
+        let scanHistory = JSON.parse(localStorage.getItem('scanHistory')) || [];
         let isScanning = false;
-
-        // Fallback storage if localStorage fails
-        let fallbackStorage = [];
-
-        // Initialize scan history with error handling
-        try {
-            const storedHistory = localStorage.getItem('scanHistory');
-            if (storedHistory) {
-                scanHistory = JSON.parse(storedHistory);
-            }
-        } catch (e) {
-            console.warn('Failed to access localStorage for scanHistory:', e);
-            scanHistory = fallbackStorage; // Use in-memory fallback
-        }
 
         // Dummy API results with severity
         const dummyApiResults = [
@@ -340,12 +326,7 @@
             };
             scanHistory.unshift(scan);
             if (scanHistory.length > 10) scanHistory.pop();
-            try {
-                localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
-            } catch (e) {
-                console.warn('Failed to save to localStorage:', e);
-                fallbackStorage = scanHistory; // Update fallback storage
-            }
+            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
             updateHistoryUI();
         }
 
@@ -364,12 +345,7 @@
                     li.querySelector('button').addEventListener('click', (e) => {
                         e.stopPropagation();
                         scanHistory = scanHistory.filter(s => s.id !== scan.id);
-                        try {
-                            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
-                        } catch (e) {
-                            console.warn('Failed to update localStorage:', e);
-                            fallbackStorage = scanHistory;
-                        }
+                        localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
                         updateHistoryUI();
                     });
                     li.addEventListener('click', () => displayScanResults(scan));
@@ -380,28 +356,103 @@
             }
         }
 
-        // Display scan results
         function displayScanResults(scan) {
-            resultsSection.classList.remove('hidden');
-            statusMessage.classList.add('hidden');
-            skeletonLoader.classList.add('hidden');
-            reportDetails.classList.remove('hidden');
-            reportPrompt.textContent = scan.input;
-            reportSummary.textContent = scan.summary;
-            apiResults.innerHTML = '';
-            scan.results.forEach(result => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="p-3 border-b border-gray-700/50">${result.endpoint}</td>
-                    <td class="p-3 border-b border-gray-700/50">${result.vulnerabilities}</td>
-                    <td class="p-3 border-b border-gray-700/50"><span class="severity-${result.severity.toLowerCase()}">${result.severity}</span></td>
-                    <td class="p-3 border-b border-gray-700/50">${result.recommendations}</td>
-                `;
-                apiResults.appendChild(row);
-            });
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
-        }
+            // Input validation
+            if (!scan || !Array.isArray(scan.results)) {
+                console.error('Invalid scan data provided');
+                return;
+            }
 
+            try {
+                // Cache DOM elements
+                const elements = {
+                    resultsSection: resultsSection,
+                    statusMessage: statusMessage,
+                    skeletonLoader: skeletonLoader,
+                    reportDetails: reportDetails,
+                    reportPrompt: reportPrompt,
+                    reportSummary: reportSummary,
+                    apiResults: apiResults
+                };
+
+                // Toggle visibility classes with null check
+                Object.entries(elements).forEach(([key, element]) => {
+                    if (!element) {
+                        console.warn(`Element ${key} not found in DOM`);
+                    }
+                });
+
+                // Update visibility
+                elements.resultsSection?.classList.remove('hidden');
+                elements.statusMessage?.classList.add('hidden');
+                elements.skeletonLoader?.classList.add('hidden');
+                elements.reportDetails?.classList.remove('hidden');
+
+                // Sanitize and update text content
+                const sanitizeText = (text) => {
+                    const div = document.createElement('div');
+                    div.textContent = text || '';
+                    return div.innerHTML;
+                };
+
+                elements.reportPrompt.textContent = sanitizeText(scan.input);
+                elements.reportSummary.textContent = sanitizeText(scan.summary);
+
+                // Clear previous results
+                elements.apiResults.innerHTML = '';
+
+                // Create document fragment for better performance
+                const fragment = document.createDocumentFragment();
+
+                // Process each result with accessibility improvements
+                scan.results.forEach((result, index) => {
+                    if (!result?.endpoint || !result?.severity) {
+                        console.warn(`Invalid result at index ${index}`);
+                        return;
+                    }
+
+                    const row = document.createElement('tr');
+                    row.setAttribute('role', 'row');
+                    row.setAttribute('tabindex', '0');
+                    row.setAttribute('aria-label', `Scan result ${index + 1}`);
+
+                    // Sanitize all inputs to prevent XSS
+                    const safeEndpoint = sanitizeText(result.endpoint);
+                    const safeVulnerabilities = sanitizeText(result.vulnerabilities);
+                    const safeSeverity = sanitizeText(result.severity);
+                    const safeRecommendations = sanitizeText(result.recommendations);
+
+                    row.innerHTML = `
+                <td class="p-3 border-b border-gray-700/50" role="cell">${safeEndpoint}</td>
+                <td class="p-3 border-b border-gray-700/50" role="cell">${safeVulnerabilities}</td>
+                <td class="p-3 border-b border-gray-700/50" role="cell">
+                    <span class="severity-${safeSeverity.toLowerCase()}" aria-label="Severity: ${safeSeverity}">
+                        ${safeSeverity}
+                    </span>
+                </td>
+                <td class="p-3 border-b border-gray-700/50" role="cell">${safeRecommendations}</td>
+            `;
+
+                    fragment.appendChild(row);
+                });
+
+                // Append all rows at once
+                elements.apiResults.appendChild(fragment);
+
+                // Smooth scroll with error handling
+                try {
+                    elements.resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch (error) {
+                    console.warn('Scroll failed:', error);
+                    elements.resultsSection.scrollIntoView(); // Fallback
+                }
+            } catch (error) {
+                console.error('Error displaying scan results:', error);
+                // Optionally show user-friendly error message
+                elements.statusMessage?.classList.remove('hidden');
+                elements.statusMessage.textContent = 'Error displaying scan results. Please try again.';
+            }
+        }
         // Escape LaTeX special characters
         function escapeLatex(str) {
             const latexSpecialChars = {
@@ -556,12 +607,7 @@ ${escapeLatex(report.summary)}
 
         clearHistoryBtn.addEventListener('click', () => {
             scanHistory = [];
-            try {
-                localStorage.removeItem('scanHistory');
-            } catch (e) {
-                console.warn('Failed to clear localStorage:', e);
-            }
-            fallbackStorage = [];
+            localStorage.removeItem('scanHistory');
             updateHistoryUI();
             showToast('Scan history cleared.');
         });
