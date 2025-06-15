@@ -230,14 +230,14 @@
 
         .glow-box textarea {
             width: 100%;
-            height: 5rem;
+            height: 3rem;
             padding: 0.75rem;
             background-color: transparent;
             color: white;
             border: 2px solid #4a5568;
             border-radius: 8px;
             resize: none;
-            font-size: 2rem;
+            font-size: 1rem;
             line-height: 1;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -481,7 +481,7 @@
             <p class="subtext">Securely analyze and test your APIs with JobIQ's cutting-edge scanning technology.</p>
 
             <div id="glowBox" class="glow-box" role="form" aria-live="polite">
-                <textarea id="promptInput" rows="1" placeholder="Enter your prompt here"
+                <textarea id="promptInput" rows="1" placeholder="Https:/localhost:3000/students"
                     aria-label="API scan prompt"></textarea>
                 <div class="upload-section">
                     <input type="file" id="fileInput" class="hidden-input" accept=".txt,.json,.pdf"
@@ -577,7 +577,7 @@
                 return;
             }
 
-            let redirectUrl = "registration.html";
+            let redirectUrl = "../guardrail-frontend/html/free-analysis/index.html";
 
             if (prompt.length > 0) {
                 redirectUrl += `?prompt=${encodeURIComponent(prompt)}`;

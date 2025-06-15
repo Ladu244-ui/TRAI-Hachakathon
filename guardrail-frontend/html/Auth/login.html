@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,12 +14,21 @@
     body {
       font-family: 'Inter', sans-serif;
     }
+
     .fade-in {
       animation: fadeIn 0.3s ease-in-out forwards;
     }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
@@ -61,13 +71,13 @@
           <div className="w-full max-w-md bg-[#0d0d0d] border border-red-800 rounded-2xl p-8 shadow-xl z-10 relative">
             {success && (
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full mt-4 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg fade-in text-sm font-medium">
-                ✅ Successfully logged in! Redirecting...
+                Successfully logged in! Redirecting...
               </div>
             )}
 
             <div className="mb-6 text-center space-y-1">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
-                Sign in to Guardrail Sentinel
+                Sign in
               </h1>
               <p className="text-sm text-gray-400">Secure access to your dashboard</p>
             </div>
@@ -165,4 +175,5 @@
     ReactDOM.createRoot(document.getElementById("root")).render(<Login />);
   </script>
 </body>
+
 </html>

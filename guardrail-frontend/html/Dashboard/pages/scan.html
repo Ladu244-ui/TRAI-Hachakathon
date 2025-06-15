@@ -4,23 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Run Scan - Guardrail Sentinel</title>
+    <meta name="description"
+        content="Guardrail Sentinel - Advanced API Security Scanner for detecting vulnerabilities in AI-driven APIs">
+    <title>API Security Scan - Guardrail Sentinel</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-in;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        .toast {
+            animation: slideIn 0.3s ease-out, slideOut 0.3s ease-in 2.7s forwards;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(12px);
             }
 
             to {
@@ -28,146 +46,426 @@
                 transform: translateY(0);
             }
         }
+
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .btn-primary {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        textarea {
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+
+        table tr {
+            transition: background 0.2s ease;
+        }
+
+        table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .severity-low {
+            color: #10b981;
+        }
+
+        .severity-medium {
+            color: #f59e0b;
+        }
+
+        .severity-high {
+            color: #ef4444;
+        }
+
+        .progress-bar {
+            background: linear-gradient(to right, #ef4444 0%, #ef4444 var(--progress), #4b5563 var(--progress), #4b5563 100%);
+            transition: --progress 0.5s ease;
+        }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen flex items-center justify-center p-4">
-    <div class="fade-in glass rounded-2xl p-8 max-w-4xl w-full">
-        <h2 class="text-3xl font-semibold text-white mb-6">Run Security Scan</h2>
-        <p class="text-white/80 mb-6">Enter a prompt to initiate a security scan for detecting potential prompt
-            injection vulnerabilities in your AI systems.</p>
+<body class="bg-gradient-to-br from-gray-950 to-gray-900 min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div class="fade-in glass rounded-3xl p-6 sm:p-8 max-w-5xl w-full" role="main">
+        <header class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">API Security Scan</h1>
+            <span class="text-sm text-white/60">Guardrail Sentinel v2.2</span>
+        </header>
+        <p class="text-white/70 text-sm sm:text-base mb-6">Secure your AI-driven APIs by scanning for vulnerabilities.
+            Enter an API endpoint or prompt to begin.</p>
 
         <!-- Prompt Input -->
         <div class="mb-6">
-            <label for="promptInput" class="block text-white/90 font-medium mb-2">Enter Prompt</label>
+            <label for="promptInput" class="block text-white/90 font-medium text-sm sm:text-base mb-2">Enter API
+                Endpoint or Prompt</label>
             <textarea id="promptInput" rows="4"
-                class="w-full p-3 bg-gray-800/50 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Type your prompt here..."></textarea>
+                class="w-full p-3 bg-gray-800/30 text-white rounded-xl border border-gray-700/50 focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-white/40"
+                placeholder="e.g., https://api.example.com/v1/endpoint or type a prompt..."
+                aria-describedby="inputValidation"></textarea>
+            <p id="inputValidation" class="text-sm text-white/60 mt-2"></p>
         </div>
 
-        <!-- Buttons -->
-        <div class="flex space-x-4 mb-6">
+        <!-- Controls -->
+        <div class="flex flex-wrap gap-4 mb-6">
             <button id="startScanBtn"
-                class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Start
-                New Scan</button>
-            <button id="checkResultsBtn"
-                class="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>Check Results</button>
+                class="btn-primary px-6 py-3 text-white rounded-xl font-medium text-sm sm:text-base disabled:opacity-60 disabled:cursor-not-allowed"
+                aria-label="Start new security scan">Start New Scan</button>
+            <button id="clearHistoryBtn"
+                class="px-6 py-3 text-white rounded-xl font-medium text-sm sm:text-base bg-gray-700/50 hover:bg-gray-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                aria-label="Clear scan history">Clear History</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progressContainer" class="hidden mb-6">
+            <div class="w-full h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                <div id="progressBar" class="h-full progress-bar" style="--progress: 0%"></div>
+            </div>
+            <p id="progressText" class="text-sm text-white/60 mt-2">Initializing scan...</p>
         </div>
 
         <!-- Results Section -->
-        <div id="resultsSection" class="hidden">
-            <h3 class="text-xl font-semibold text-white mb-4">Scan Results</h3>
-            <div id="resultsContainer" class="bg-gray-800/50 p-4 rounded-lg">
-                <p id="resultsMessage" class="text-white/80">No results available yet. Run a scan to see the report.</p>
+        <section id="resultsSection" class="hidden" aria-live="polite">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg sm:text-xl font-semibold text-white">Scan Results</h2>
+                <button id="exportReportBtn"
+                    class="px-4 py-2 text-white rounded-lg bg-gray-700/50 hover:bg-gray-700 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    aria-label="Export scan report">Export Report</button>
+            </div>
+            <div id="resultsContainer" class="bg-gray-800/30 p-4 sm:p-6 rounded-xl">
+                <p id="statusMessage" class="text-white/80 text-sm sm:text-base">No results available yet. Run a scan to
+                    see the report.</p>
+                <div id="skeletonLoader" class="hidden">
+                    <div class="skeleton h-4 w-3/4 rounded mb-4"></div>
+                    <div class="skeleton h-4 w-1/2 rounded mb-4"></div>
+                    <div class="skeleton h-4 w-full rounded mb-2"></div>
+                    <div class="skeleton h-4 w-5/6 rounded mb-2"></div>
+                    <div class="skeleton h-4 w-2/3 rounded"></div>
+                </div>
                 <div id="reportDetails" class="hidden">
                     <div class="mb-4">
-                        <span class="font-medium text-white">Prompt:</span>
-                        <p id="reportPrompt" class="text-white/80"></p>
+                        <span class="font-medium text-white text-sm sm:text-base">Input:</span>
+                        <p id="reportPrompt" class="text-white/80 text-sm sm:text-base"></p>
                     </div>
                     <div class="mb-4">
-                        <span class="font-medium text-white">Summary:</span>
-                        <p id="reportSummary" class="text-white/80"></p>
+                        <span class="font-medium text-white text-sm sm:text-base">Summary:</span>
+                        <p id="reportSummary" class="text-white/80 text-sm sm:text-base"></p>
                     </div>
                     <div class="mb-4">
-                        <span class="font-medium text-white">Site-Specific Results:</span>
-                        <table class="w-full text-white/80 border-collapse">
-                            <thead>
-                                <tr class="bg-gray-700/50">
-                                    <th class="p-2 text-left border-b border-gray-600">Site</th>
-                                    <th class="p-2 text-left border-b border-gray-600">Vulnerabilities</th>
-                                    <th class="p-2 text-left border-b border-gray-600">Recommendations</th>
-                                </tr>
-                            </thead>
-                            <tbody id="siteResults">
-                                <!-- Dummy results will be populated here -->
-                            </tbody>
-                        </table>
+                        <span class="font-medium text-white text-sm sm:text-base">API-Specific Results:</span>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-white/80 border-collapse text-sm sm:text-base">
+                                <caption class="sr-only">API Scan Results Table</caption>
+                                <thead>
+                                    <tr class="bg-gray-700/30">
+                                        <th class="p-3 text-left font-medium border-b border-gray-700/50">API Endpoint
+                                        </th>
+                                        <th class="p-3 text-left font-medium border-b border-gray-700/50">
+                                            Vulnerabilities</th>
+                                        <th class="p-3 text-left font-medium border-b border-gray-700/50">Severity</th>
+                                        <th class="p-3 text-left font-medium border-b border-gray-700/50">
+                                            Recommendations</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="apiResults"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="historySection" class="mt-6 hidden" aria-live="polite">
+            <h2 class="text-lg sm:text-xl font-semibold text-white mb-4">Scan History</h2>
+            <div id="historyContainer" class="bg-gray-800/30 p-4 sm:p-6 rounded-xl">
+                <ul id="historyList" class="space-y-2"></ul>
+            </div>
+        </section>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-4 right-4 bg-gray-800/90 text-white p-4 rounded-xl shadow-lg hidden toast"
+            role="alert">
+            <span id="toastMessage"></span>
         </div>
     </div>
 
     <script>
+        // DOM Elements
         const startScanBtn = document.getElementById('startScanBtn');
-        const checkResultsBtn = document.getElementById('checkResultsBtn');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const exportReportBtn = document.getElementById('exportReportBtn');
         const promptInput = document.getElementById('promptInput');
+        const inputValidation = document.getElementById('inputValidation');
         const resultsSection = document.getElementById('resultsSection');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const resultsMessage = document.getElementById('resultsMessage');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const statusMessage = document.getElementById('statusMessage');
+        const skeletonLoader = document.getElementById('skeletonLoader');
         const reportDetails = document.getElementById('reportDetails');
         const reportPrompt = document.getElementById('reportPrompt');
         const reportSummary = document.getElementById('reportSummary');
-        const siteResults = document.getElementById('siteResults');
+        const apiResults = document.getElementById('apiResults');
+        const historySection = document.getElementById('historySection');
+        const historyList = document.getElementById('historyList');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
 
-        // Dummy site results data
-        const dummySiteResults = [
+        // State Management
+        let scanHistory = JSON.parse(localStorage.getItem('scanHistory')) || [];
+        let isScanning = false;
+
+        // Dummy API results with severity
+        const dummyApiResults = [
             {
-                site: 'example.com',
-                vulnerabilities: 'Potential prompt injection detected in user input field.',
-                recommendations: 'Implement strict input sanitization and validation.'
+                endpoint: 'https://api.example.com/v1/users',
+                vulnerabilities: 'Potential prompt injection in query parameters.',
+                severity: 'Medium',
+                recommendations: 'Implement strict input validation and sanitize query strings.'
             },
             {
-                site: 'testsite.org',
+                endpoint: 'https://api.example.com/v1/auth',
                 vulnerabilities: 'No vulnerabilities detected.',
-                recommendations: 'Continue monitoring inputs for anomalies.'
+                severity: 'Low',
+                recommendations: 'Maintain current security measures and monitor for anomalies.'
             },
             {
-                site: 'app.demo.net',
-                vulnerabilities: 'Cross-site scripting risk in prompt handling.',
-                recommendations: 'Escape special characters and use CSP headers.'
+                endpoint: 'https://api.example.com/v1/data',
+                vulnerabilities: 'Unescaped input in response handling.',
+                severity: 'High',
+                recommendations: 'Escape special characters and enforce Content Security Policy.'
             }
         ];
 
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            toastMessage.textContent = message;
+            toast.className = `fixed bottom-4 right-4 text-white p-4 rounded-xl shadow-lg toast ${type === 'error' ? 'bg-red-600' : 'bg-gray-800/90'}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // Validate input
+        function validateInput(input) {
+            if (!input) {
+                inputValidation.textContent = 'Please enter an API endpoint or prompt.';
+                inputValidation.className = 'text-sm text-red-400 mt-2';
+                return false;
+            }
+            if (input.length > 1000) {
+                inputValidation.textContent = 'Input is too long. Maximum 1000 characters.';
+                inputValidation.className = 'text-sm text-red-400 mt-2';
+                return false;
+            }
+            const urlRegex = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
+            if (input.startsWith('http') && !urlRegex.test(input)) {
+                inputValidation.textContent = 'Invalid URL format.';
+                inputValidation.className = 'text-sm text-red-400 mt-2';
+                return false;
+            }
+            inputValidation.textContent = 'Input is valid.';
+            inputValidation.className = 'text-sm text-green-400 mt-2';
+            return true;
+        }
+
+        // Update progress bar
+        function updateProgress(progress, message) {
+            progressBar.style.setProperty('--progress', `${progress}%`);
+            progressText.textContent = message;
+        }
+
+        // Save scan to history
+        function saveScan(input, results, summary) {
+            const scan = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                input,
+                results,
+                summary
+            };
+            scanHistory.unshift(scan);
+            if (scanHistory.length > 10) scanHistory.pop();
+            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+            updateHistoryUI();
+        }
+
+        // Update history UI
+        function updateHistoryUI() {
+            historyList.innerHTML = '';
+            if (scanHistory.length) {
+                historySection.classList.remove('hidden');
+                scanHistory.forEach(scan => {
+                    const li = document.createElement('li');
+                    li.className = 'text-white/80 text-sm p-2 rounded-lg hover:bg-gray-700/50 cursor-pointer';
+                    li.innerHTML = `
+                        <span>${scan.timestamp} - ${scan.input.slice(0, 50)}${scan.input.length > 50 ? '...' : ''}</span>
+                        <button class="ml-2 text-red-400 hover:text-red-300" aria-label="Delete scan">Delete</button>
+                    `;
+                    li.querySelector('button').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        scanHistory = scanHistory.filter(s => s.id !== scan.id);
+                        localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+                        updateHistoryUI();
+                    });
+                    li.addEventListener('click', () => displayScanResults(scan));
+                    historyList.appendChild(li);
+                });
+            } else {
+                historySection.classList.add('hidden');
+            }
+        }
+
+        // Display scan results
+        function displayScanResults(scan) {
+            resultsSection.classList.remove('hidden');
+            statusMessage.classList.add('hidden');
+            skeletonLoader.classList.add('hidden');
+            reportDetails.classList.remove('hidden');
+            reportPrompt.textContent = scan.input;
+            reportSummary.textContent = scan.summary;
+            apiResults.innerHTML = '';
+            scan.results.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="p-3 border-b border-gray-700/50">${result.endpoint}</td>
+                    <td class="p-3 border-b border-gray-700/50">${result.vulnerabilities}</td>
+                    <td class="p-3 border-b border-gray-700/50"><span class="severity-${result.severity.toLowerCase()}">${result.severity}</span></td>
+                    <td class="p-3 border-b border-gray-700/50">${result.recommendations}</td>
+                `;
+                apiResults.appendChild(row);
+            });
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Export report
+        function exportReport() {
+            const report = {
+                input: reportPrompt.textContent,
+                summary: reportSummary.textContent,
+                results: Array.from(apiResults.querySelectorAll('tr')).map(row => ({
+                    endpoint: row.cells[0].textContent,
+                    vulnerabilities: row.cells[1].textContent,
+                    severity: row.cells[2].textContent,
+                    recommendations: row.cells[3].textContent
+                }))
+            };
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `scan-report-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Report exported successfully!');
+        }
+
+        // Event Listeners
+        promptInput.addEventListener('input', () => validateInput(promptInput.value.trim()));
+
         startScanBtn.addEventListener('click', () => {
             const prompt = promptInput.value.trim();
-            if (!prompt) {
-                alert('Please enter a prompt to scan.');
+            if (!validateInput(prompt)) {
+                showToast('Invalid input. Please check the input field.', 'error');
                 return;
             }
+            if (isScanning) return;
 
+            isScanning = true;
             startScanBtn.disabled = true;
             startScanBtn.textContent = 'Scanning...';
             resultsSection.classList.remove('hidden');
-            resultsMessage.textContent = 'Scanning in progress...';
+            progressContainer.classList.remove('hidden');
+            statusMessage.classList.add('hidden');
+            skeletonLoader.classList.remove('hidden');
             reportDetails.classList.add('hidden');
 
-            // Simulate scan process
-            setTimeout(() => {
-                // Populate dummy results
-                const summary = `Scanned ${dummySiteResults.length} sites. Vulnerabilities found in ${dummySiteResults.filter(r => !r.vulnerabilities.includes('No')).length} sites.`;
+            // Simulate scan with progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 20;
+                updateProgress(progress, `Scanning... ${progress}%`);
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    const summary = `Scanned ${dummyApiResults.length} API endpoints. Vulnerabilities found in ${dummyApiResults.filter(r => !r.vulnerabilities.includes('No')).length} endpoints.`;
+                    skeletonLoader.classList.add('hidden');
+                    reportDetails.classList.remove('hidden');
+                    reportPrompt.textContent = prompt;
+                    reportSummary.textContent = summary;
+                    apiResults.innerHTML = '';
+                    dummyApiResults.forEach(result => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="p-3 border-b border-gray-700/50">${result.endpoint}</td>
+                            <td class="p-3 border-b border-gray-700/50">${result.vulnerabilities}</td>
+                            <td class="p-3 border-b border-gray-700/50"><span class="severity-${result.severity.toLowerCase()}">${result.severity}</span></td>
+                            <td class="p-3 border-b border-gray-700/50">${result.recommendations}</td>
+                        `;
+                        apiResults.appendChild(row);
+                    });
 
-                // Update UI with results
-                resultsMessage.classList.add('hidden');
-                reportDetails.classList.remove('hidden');
-                reportPrompt.textContent = prompt;
-                reportSummary.textContent = summary;
-
-                // Populate site-specific results
-                siteResults.innerHTML = '';
-                dummySiteResults.forEach(result => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="p-2 border-b border-gray-600">${result.site}</td>
-                        <td class="p-2 border-b border-gray-600">${result.vulnerabilities}</td>
-                        <td class="p-2 border-b border-gray-600">${result.recommendations}</td>
-                    `;
-                    siteResults.appendChild(row);
-                });
-
-                // Reset buttons
-                startScanBtn.disabled = false;
-                startScanBtn.textContent = 'Start New Scan';
-                checkResultsBtn.disabled = false;
-            }, 2000);
+                    saveScan(prompt, dummyApiResults, summary);
+                    progressContainer.classList.add('hidden');
+                    startScanBtn.disabled = false;
+                    startScanBtn.textContent = 'Start New Scan';
+                    isScanning = false;
+                    showToast('Scan completed successfully!');
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 400);
         });
 
-        checkResultsBtn.addEventListener('click', () => {
-            if (!reportDetails.classList.contains('hidden')) {
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
-            }
+        clearHistoryBtn.addEventListener('click', () => {
+            scanHistory = [];
+            localStorage.removeItem('scanHistory');
+            updateHistoryUI();
+            showToast('Scan history cleared.');
         });
+
+        exportReportBtn.addEventListener('click', exportReport);
+
+        // Initialize history
+        updateHistoryUI();
     </script>
 </body>
 

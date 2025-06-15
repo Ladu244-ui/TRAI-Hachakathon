@@ -3,34 +3,271 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan History - Guardrail Sentinel</title>
-    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.33/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, #0f172a, #1e293b);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        th.sortable {
+            cursor: pointer;
+            position: relative;
+        }
+
+        th.sortable:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        th.sortable::after {
+            content: '\f0dc';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 8px;
+            opacity: 0.3;
+        }
+
+        th.sortable.asc::after {
+            content: '\f0de';
+        }
+
+        th.sortable.desc::after {
+            content: '\f0dd';
+        }
+    </style>
 </head>
 
-<body>
-    <div class="fade-in glass rounded-2xl p-8">
-        <h2 class="text-3xl font-semibold mb-6">Scan History</h2>
-        <p class="text-white/80">Review past scan activity, timestamps, and detected vulnerabilities for auditing
-            purposes.</p>
-        <table class="w-full mt-6 text-left text-white/90">
-            <thead>
-                <tr class="text-white/60 border-b border-white/20">
-                    <th class="py-2">Date</th>
-                    <th class="py-2">Time</th>
-                    <th class="py-2">Status</th>
-                    <th class="py-2">Issues Found</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="hover:bg-white/10 transition">
-                    <td class="py-3">June 13, 2025</td>
-                    <td class="py-3">14:45</td>
-                    <td class="py-3 text-green-400">Completed</td>
-                    <td class="py-3">2</td>
-                </tr>
-            </tbody>
-        </table>
+<body class="text-white p-6">
+    <div class="fade-in glass rounded-2xl p-8 max-w-7xl mx-auto mt-10">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-history text-2xl text-blue-400"></i>
+                <h2 class="text-3xl font-bold">Scan History</h2>
+            </div>
+            <button onclick="downloadPDF()"
+                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition flex items-center gap-2 disabled:opacity-50"
+                id="downloadBtn">
+                <i class="fas fa-file-download"></i> Download PDF
+            </button>
+        </div>
+
+        <div class="flex flex-wrap gap-4 mb-8">
+            <div>
+                <label class="text-sm text-white/70 mb-1 block">Filter by Status:</label>
+                <select id="statusFilter"
+                    class="bg-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="All">All</option>
+                    <option value="Completed">Completed</option>
+                    < option value="Failed">Failed</option>
+                        <option value="Partial">Partial</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-sm text-white/70 mb-1 block">Start Date:</label>
+                <input type="date" id="startDate"
+                    class="bg-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="text-sm text-white/70 mb-1 block">End Date:</label>
+                <input type="date" id="endDate"
+                    class="bg-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button onclick="filterHistory()"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition mt-6">
+                Apply Filters
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-white/90 border-collapse">
+                <thead>
+                    <tr class="text-white/70 border-b border-white/20">
+                        <th class="py-4 px-6 sortable" data-sort="date">Date</th>
+                        <th class="py-4 px-6 sortable" data-sort="time">Time</th>
+                        <th class="py-4 px-6 sortable" data-sort="status">Status</th>
+                        <th class="py-4 px-6 sortable" data-sort="issues">Issues Found</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable"></tbody>
+            </table>
+        </div>
     </div>
+
+    <script>
+        const historyData = [
+            { date: "2025-06-13", time: "14:45", status: "Completed", issues: 2 },
+            { date: "2025-06-12", time: "10:22", status: "Failed", issues: 5 },
+            { date: "2025-06-11", time: "08:00", status: "Completed", issues: 0 },
+            { date: "2025-06-10", time: "19:50", status: "Partial", issues: 1 },
+            { date: "2025-06-09", time: "12:35", status: "Completed", issues: 3 },
+            { date: "2025-06-08", time: "15:10", status: "Failed", issues: 4 },
+            { date: "2025-06-07", time: "09:30", status: "Completed", issues: 0 },
+            { date: "2025-06-06", time: "22:20", status: "Partial", issues: 2 },
+            { date: "2025-06-05", time: "11:05", status: "Completed", issues: 1 }
+        ];
+
+        let currentSort = { field: 'date', direction: 'desc' };
+
+        function statusColor(status) {
+            const colors = {
+                Completed: 'text-green-400',
+                Failed: 'text-red-400',
+                Partial: 'text-yellow-400'
+            };
+            return colors[status] || 'text-white';
+        }
+
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                month: 'long', day: 'numeric', year: 'numeric'
+            });
+        }
+
+        function sortData(data, field, direction) {
+            return [...data].sort((a, b) => {
+                const valA = field === 'issues' ? a[field] : a[field].toString().toLowerCase();
+                const valB = field === 'issues' ? b[field] : b[field].toString().toLowerCase();
+                if (field === 'issues') {
+                    return direction === 'asc' ? valA - valB : valB - valA;
+                }
+                return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            });
+        }
+
+        function renderHistory(data) {
+            const table = document.getElementById('historyTable');
+            table.innerHTML = '';
+            data.forEach(entry => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-white/10 transition border-b border-white/10';
+                row.innerHTML = `
+                    <td class="py-4 px-6">${formatDate(entry.date)}</td>
+                    <td class="py-4 px-6">${entry.time}</td>
+                    <td class="py-4 px-6 ${statusColor(entry.status)}">${entry.status}</td>
+                    <td class="py-4 px-6">${entry.issues}</td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function filterHistory() {
+            const status = document.getElementById('statusFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let filtered = [...historyData];
+
+            if (status !== 'All') {
+                filtered = filtered.filter(h => h.status === status);
+            }
+
+            if (startDate) {
+                filtered = filtered.filter(h => h.date >= startDate);
+            }
+
+            if (endDate) {
+                filtered = filtered.filter(h => h.date <= endDate);
+            }
+
+            filtered = sortData(filtered, currentSort.field, currentSort.direction);
+            renderHistory(filtered);
+        }
+
+        function downloadPDF() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.disabled = true;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Header
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setFontSize(18);
+            doc.setTextColor(255, 255, 255);
+            doc.text("Guardrail Sentinel - Scan History", 20, 20);
+            doc.setFontSize(10);
+            doc.setTextColor(200, 200, 200);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
+
+            // Table
+            const headers = [['Date', 'Time', 'Status', 'Issues Found']];
+            const rows = [];
+            const tableRows = document.querySelectorAll('#historyTable tr');
+            tableRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                rows.push(Array.from(cells).map(cell => cell.textContent));
+            });
+
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 50,
+                styles: { fontSize: 10, cellPadding: 4, textColor: [50, 50, 50] },
+                headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255] },
+                alternateRowStyles: { fillColor: [240, 240, 240] },
+                margin: { top: 50 }
+            });
+
+            doc.save('Scan_History.pdf');
+            setTimeout(() => { downloadBtn.disabled = false; }, 1000);
+        }
+
+        // Sorting event listeners
+        document.querySelectorAll('.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const field = th.dataset.sort;
+                if (currentSort.field === field) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.field = field;
+                    currentSort.direction = 'asc';
+                }
+
+                document.querySelectorAll('.sortable').forEach(t => {
+                    t.classList.remove('asc', 'desc');
+                });
+                th.classList.add(currentSort.direction);
+                filterHistory();
+            });
+        });
+
+        // Event listeners for filters
+        document.getElementById('statusFilter').addEventListener('change', filterHistory);
+        document.getElementById('startDate').addEventListener('change', filterHistory);
+        document.getElementById('endDate').addEventListener('change', filterHistory);
+
+        // Initial render
+        renderHistory(sortData(historyData, 'date', 'desc'));
+    </script>
 </body>
 
 </html>

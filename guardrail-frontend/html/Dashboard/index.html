@@ -141,6 +141,53 @@
         .cta:hover {
             background: #750a0a;
         }
+
+        /* Skeleton Loader Styles */
+        .skeleton {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-card {
+            flex: 1 1 16rem;
+            padding: 1.5em 2em;
+            height: 250px;
+            margin-bottom: 1.5em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .skeleton-line {
+            height: 24px;
+            margin-bottom: 1.2em;
+            border-radius: 4px;
+        }
+
+        .skeleton-line.short {
+            width: 50%;
+        }
+
+        .skeleton-line.medium {
+            width: 75%;
+        }
+
+        .skeleton-line.long {
+            width: 90%;
+        }
+
+        @keyframes pulse {
+            0% {
+                background: rgba(255, 255, 255, 0.15);
+            }
+
+            50% {
+                background: rgba(255, 255, 255, 0.25);
+            }
+
+            100% {
+                background: rgba(255, 255, 255, 0.15);
+            }
+        }
     </style>
 </head>
 
@@ -158,7 +205,7 @@
                     class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
             </div>
             <div class="relative group">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcePxkXtFyMIWBb6cvVxf0sgajEvEiLMeZ6g&s"
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbni:ANd9GcQcePxkXtFyMIWBb6cvVxf0sgajEvEiLMeZ6g&s"
                     alt="User Avatar"
                     class="w-10 h-10 rounded-full border-2 border-[var(--primary-color)] object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105" />
             </div>
@@ -221,7 +268,47 @@
         </aside>
 
         <main class="flex-1 overflow-y-auto bg-[#1a0b0b] p-6">
-            <section class="glass rounded-xl p-6 shadow-md min-h-[80vh] border border-white/10 content"></section>
+            <section class="glass rounded-xl p-6 content">
+                <!-- Skeleton Loader -->
+                <div class="skeleton-loader cards__inner">
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton skeleton-line medium"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                        <div class="skeleton skeleton-line long"></div>
+                        <div class="skeleton skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton skeleton-line medium"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                        <div class="skeleton skeleton-line long"></div>
+                        <div class="skeleton skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton skeleton-line medium"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                        <div class="skeleton skeleton-line long"></div>
+                        <div class="skeleton skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton skeleton-line medium"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                        <div class="skeleton skeleton-line long"></div>
+                        <div class="skeleton skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton skeleton-line medium"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                        <div class="skeleton skeleton-line long"></div>
+                        <div class="skeleton skeleton-line medium"></div>
+                    </div>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton skeleton-line medium"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                        <div class="skeleton skeleton-line long"></div>
+                        <div class="skeleton skeleton-line medium"></div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -229,9 +316,16 @@
         document.addEventListener('DOMContentLoaded', () => {
             const menuItems = document.querySelectorAll('.sidebar-menu a');
             const content = document.querySelector('.content');
+            const skeletonLoader = document.querySelector('.skeleton-loader');
 
             const loadSection = async (file) => {
+                // Show skeleton loader
+                skeletonLoader.style.display = 'flex';
                 content.classList.remove('fade-in');
+
+                const MINIMUM_LOADER_DURATION = 3000; // 3 seconds
+                const startTime = Date.now();
+
                 try {
                     const res = await fetch(file);
                     if (!res.ok) throw new Error('Failed to load content');
@@ -244,6 +338,15 @@
                     const scripts = doc.querySelectorAll('script');
                     scripts.forEach(script => script.remove());
 
+                    // Ensure skeleton loader is shown for at least 3 seconds
+                    const elapsedTime = Date.now() - startTime;
+                    const remainingTime = MINIMUM_LOADER_DURATION - elapsedTime;
+                    if (remainingTime > 0) {
+                        await new Promise(resolve => setTimeout(resolve, remainingTime));
+                    }
+
+                    // Hide skeleton loader and load content
+                    skeletonLoader.style.display = 'none';
                     content.innerHTML = bodyContent;
                     content.classList.add('fade-in');
 
@@ -258,6 +361,13 @@
                         content.appendChild(newScript);
                     });
                 } catch (err) {
+                    // Ensure minimum duration even on error
+                    const elapsedTime = Date.now() - startTime;
+                    const remainingTime = MINIMUM_LOADER_DURATION - elapsedTime;
+                    if (remainingTime > 0) {
+                        await new Promise(resolve => setTimeout(resolve, remainingTime));
+                    }
+                    skeletonLoader.style.display = 'none';
                     content.innerHTML = '<p class="text-red-400 text-center">Error loading content. Please try again.</p>';
                 }
             };
@@ -279,6 +389,7 @@
                 });
             });
 
+            // Load initial dashboard content
             loadSection('pages/dashboard.html');
 
             const darkModeToggle = document.createElement('button');
