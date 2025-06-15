@@ -19,11 +19,11 @@ async def audit_chatbot(request: SinglePromptRequest):
         business_type = await classify_business_from_chatbot(chatbot_url)
         print(f"🏷️ Business Type: {business_type}")
 
-        # Step 2: Generate injection prompts
+        # Step 2: Generate injection prompts  #ghfkdjfdfjkjfgfdkjkdjhkdfjfkfdjfkdkjflkjfgjkjhjjbkjlhjgjghkgghhjjhkjh
         prompts = await generate_injection_prompts(business_type, count=5)
         print(f"🎭 Generated Prompts: {prompts}")
 
-        # Step 3: Test each prompt and collect results
+        # Step 3: Test each prompt and collect results  #gjhjk;djkhffdk;lk;jklk;jlkd;jfdjfhdjjlkljfdjkhkldfhjkhfgfhj
         tasks = [test_single_prompt(chatbot_url, p) for p in prompts]
         results = await asyncio.gather(*tasks)
 
