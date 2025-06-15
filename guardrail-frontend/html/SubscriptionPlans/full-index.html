@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore SecureScan's premium pricing plans for API vulnerability scanning.">
     <title>SecureScan Pricing</title>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700;800;900&display=swap");
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
 
         *,
         *::after,
@@ -20,16 +21,18 @@
         body {
             height: 100%;
             min-height: 100vh;
+            scroll-behavior: smooth;
         }
 
         body {
             display: grid;
             place-items: center;
-            font-family: "League Spartan", system-ui, sans-serif;
-            font-size: 1.1rem;
-            line-height: 1.2;
-            background-color: #efefef;
-            color: #090909;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            line-height: 1.5;
+            background: linear-gradient(135deg, #1a2a44 0%, #2e3b5e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
         }
 
         ul {
@@ -37,82 +40,103 @@
         }
 
         .main {
-            max-width: 75rem;
-            padding: 3em 1.5em;
+            max-width: 90rem;
+            padding: 4em 2em;
+            animation: fadeIn 1s ease-out;
         }
 
         .main__heading {
-            font-weight: 600;
-            font-size: 2.25em;
-            margin-bottom: 0.75em;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 1em;
             text-align: center;
-            color: #060606;
-        }
-
-        .cards {
-            position: relative;
+            color: #f4e9cd;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .cards__inner {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2.5em;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+            gap: 2em;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .card {
-            --flow-space: 0.75em;
+            --flow-space: 1em;
             --hsl: var(--hue), var(--saturation), var(--lightness);
-            flex: 1 1 16rem;
-            padding: 2em 2.5em;
+            padding: 2.5em;
             display: grid;
             grid-template-rows: auto auto auto 1fr;
-            align-items: start;
             gap: 1.5em;
-            background: #ffffff;
-            color: #0e0e0e;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            color: #1a2a44;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, hsl(var(--hsl)) 0%, transparent 100%);
         }
 
         .card:nth-child(1) {
-            --hue: 165;
-            --saturation: 82.26%;
-            --lightness: 51.37%;
+            --hue: 40;
+            --saturation: 80%;
+            --lightness: 50%;
         }
 
         .card:nth-child(2) {
-            --hue: 291.34;
-            --saturation: 95.9%;
-            --lightness: 61.76%;
+            --hue: 220;
+            --saturation: 70%;
+            --lightness: 50%;
         }
 
         .card:nth-child(3) {
-            --hue: 338.69;
-            --saturation: 100%;
-            --lightness: 48.04%;
+            --hue: 340;
+            --saturation: 75%;
+            --lightness: 50%;
         }
 
-        .card__bullets {
-            line-height: 1.4;
-        }
-
-        .card__bullets li::before {
-            display: inline-block;
-            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='16' title='check' fill='%23dddddd'%3E%3Cpath d='M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z' /%3E%3C/svg%3E");
-            transform: translatey(0.25ch);
-            margin-right: 1ch;
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
         }
 
         .card__heading {
-            font-size: 1.05em;
-            font-weight: 600;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1a2a44;
         }
 
         .card__price {
-            font-size: 1.75em;
+            font-size: 2em;
             font-weight: 700;
+            color: hsl(var(--hsl));
+        }
+
+        .card__bullets li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.75em;
+            font-size: 0.95em;
+        }
+
+        .card__bullets li::before {
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='16' title='check' fill='%23f4e9cd'%3E%3Cpath d='M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z' /%3E%3C/svg%3E");
+            margin-right: 1ch;
+            margin-top: 0.25em;
         }
 
         .flow>*+* {
@@ -122,16 +146,22 @@
         .cta {
             display: block;
             align-self: end;
-            margin: 1em 0 0.5em 0;
             text-align: center;
             text-decoration: none;
-            color: #050505;
-            background-color: transparent;
-            padding: 0.7em;
-            border: #000 1px solid;
-            border-radius: 10px;
+            color: #ffffff;
+            background: linear-gradient(90deg, hsl(var(--hsl)) 0%, hsl(var(--hsl), 0.8) 100%);
+            padding: 1em;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta:hover,
+        .cta:focus {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            outline: none;
         }
 
         .overlay {
@@ -140,38 +170,45 @@
             pointer-events: none;
             user-select: none;
             opacity: var(--opacity, 0);
-            -webkit-mask: radial-gradient(25rem 25rem at var(--x) var(--y),
-                    #000 1%,
-                    transparent 50%);
-            mask: radial-gradient(25rem 25rem at var(--x) var(--y),
-                    #000 1%,
-                    transparent 50%);
-            transition: 400ms mask ease;
+            -webkit-mask: radial-gradient(20rem at var(--x) var(--y), #000 1%, transparent 50%);
+            mask: radial-gradient(20rem at var(--x) var(--y), #000 1%, transparent 50%);
+            transition: 300ms mask ease;
             will-change: mask;
         }
 
         .overlay .card {
-            background-color: hsla(var(--hsl), 0.15);
-            border-color: hsla(var(--hsl), 1);
-            box-shadow: 0 0 0 1px inset hsl(var(--hsl));
+            background: hsla(var(--hsl), 0.2);
+            box-shadow: 0 0 0 2px inset hsl(var(--hsl));
         }
 
         .overlay .cta {
-            display: block;
-            grid-row: -1;
-            width: 100%;
-            background-color: hsl(var(--hsl));
-            box-shadow: 0 0 0 1px hsl(var(--hsl));
+            background: hsl(var(--hsl));
         }
 
-        :not(.overlay)>.card {
-            transition: 400ms background ease;
-            will-change: background;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        :not(.overlay)>.card:hover {
-            --lightness: 95%;
-            background: hsla(var(--hsl), 0.1);
+        @media (max-width: 768px) {
+            .main {
+                padding: 2em 1em;
+            }
+
+            .card {
+                padding: 2em;
+            }
+
+            .main__heading {
+                font-size: 2.25rem;
+            }
         }
     </style>
 </head>
@@ -181,8 +218,8 @@
         <h1 id="pricing-heading" class="main__heading">SecureScan Pricing</h1>
         <div class="main__cards cards">
             <div class="cards__inner">
-                <div class="cards__card card">
-                    <h2 class="card__heading">Basic</h2>
+                <div class="cards__card card" role="region" aria-labelledby="basic-heading">
+                    <h2 id="basic-heading" class="card__heading">Basic</h2>
                     <p class="card__price">R1.99</p>
                     <ul role="list" class="card__bullets flow">
                         <li>Scan up to 5 APIs per month</li>
@@ -192,9 +229,8 @@
                     <a href="/dashboard/payment?plan=basic&amount=1.99" class="card__cta cta"
                         aria-label="Get started with Basic plan">Get Started</a>
                 </div>
-
-                <div class="cards__card card">
-                    <h2 class="card__heading">Pro</h2>
+                <div class="cards__card card" role="region" aria-labelledby="pro-heading">
+                    <h2 id="pro-heading" class="card__heading">Pro</h2>
                     <p class="card__price">R99.99</p>
                     <ul role="list" class="card__bullets flow">
                         <li>Scan up to 50 APIs per month</li>
@@ -204,9 +240,8 @@
                     <a href="/dashboard/payment?plan=pro&amount=99.99" class="card__cta cta"
                         aria-label="Upgrade to Pro plan">Upgrade to Pro</a>
                 </div>
-
-                <div class="cards__card card">
-                    <h2 class="card__heading">Ultimate</h2>
+                <div class="cards__card card" role="region" aria-labelledby="ultimate-heading">
+                    <h2 id="ultimate-heading" class="card__heading">Ultimate</h2>
                     <p class="card__price">R199.99</p>
                     <ul role="list" class="card__bullets flow">
                         <li>Unlimited API scans</li>
@@ -218,25 +253,19 @@
                         aria-label="Get Ultimate plan">Go Ultimate</a>
                 </div>
             </div>
-
             <div class="overlay cards__inner"></div>
         </div>
     </main>
     <script>
-        console.clear();
-
         const cardsContainer = document.querySelector(".cards");
-        const cardsContainerInner = document.querySelector(".cards__inner");
         const cards = Array.from(document.querySelectorAll(".card"));
         const overlay = document.querySelector(".overlay");
 
         const applyOverlayMask = (e) => {
             if (!cardsContainer) return;
-            const overlayEl = e.currentTarget;
             const x = e.pageX - cardsContainer.offsetLeft;
             const y = e.pageY - cardsContainer.offsetTop;
-
-            overlayEl.style = `--opacity: 1; --x: ${x}px; --y:${y}px;`;
+            overlay.style = `--opacity: 1; --x: ${x}px; --y:${y}px;`;
         };
 
         const createOverlayCta = (overlayCard, ctaEl) => {
@@ -250,9 +279,8 @@
         const observer = new ResizeObserver((entries) => {
             entries.forEach((entry) => {
                 const cardIndex = cards.indexOf(entry.target);
-                if (cardIndex >= 0) {
-                    const width = entry.borderBoxSize[0].inlineSize;
-                    const height = entry.borderBoxSize[0].blockSize;
+                if (cardIndex >= 0 && overlay.children[cardIndex]) {
+                    const { inlineSize: width, blockSize: height } = entry.borderBoxSize[0];
                     overlay.children[cardIndex].style.width = `${width}px`;
                     overlay.children[cardIndex].style.height = `${height}px`;
                 }
@@ -269,22 +297,27 @@
 
         cards.forEach(initOverlayCard);
 
-        // Prevent pointermove from firing on touch devices to avoid jitter
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         if (!isTouchDevice) {
-            document.body.addEventListener("pointermove", applyOverlayMask);
+            cardsContainer.addEventListener("pointermove", applyOverlayMask);
+            cardsContainer.addEventListener("pointerleave", () => {
+                overlay.style = `--opacity: 0;`;
+            });
         }
 
-        // Dashboard navigation integration
         document.querySelectorAll('.card__cta').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 const url = button.getAttribute('href');
-                window.dispatchEvent(new CustomEvent('navigateToPayment', {
-                    detail: { url }
-                }));
-                window.location.href = url; // Fallback navigation
+                window.dispatchEvent(new CustomEvent('navigateToPayment', { detail: { url } }));
+                setTimeout(() => { window.location.href = url; }, 300);
             });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                document.querySelectorAll('.cta').forEach(cta => cta.setAttribute('tabindex', '0'));
+            }
         });
     </script>
 </body>

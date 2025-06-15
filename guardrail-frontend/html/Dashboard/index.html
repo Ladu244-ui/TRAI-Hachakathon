@@ -12,7 +12,8 @@
         @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
         :root {
-            --primary-color: #5a0808;
+            --primary-color: #1e40af;
+            /* Changed to blue */
             --sidebar-width: 280px;
             --sidebar-collapsed-width: 80px;
             --transition-speed: 0.3s;
@@ -26,7 +27,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #1a0b0b;
+            background: #0f172a;
+            /* Fallback for older browsers */
             min-height: 100vh;
             color: #fff;
             display: flex;
@@ -139,7 +141,8 @@
         }
 
         .cta:hover {
-            background: #750a0a;
+            background: #3b82f6;
+            /* Lighter blue for hover */
         }
 
         /* Skeleton Loader Styles */
@@ -191,7 +194,7 @@
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="bg-gradient-to-tr from-blue-900 via-gray-900 to-blue-800 text-white min-h-screen flex flex-col">
     <header
         class="glass w-full px-6 py-3 flex justify-between items-center sticky top-0 z-50 rounded-xl shadow-md backdrop-blur-md border border-white/10">
         <div class="flex items-center gap-4">
@@ -267,7 +270,7 @@
             </nav>
         </aside>
 
-        <main class="flex-1 overflow-y-auto bg-[#1a0b0b] p-6">
+        <main class="flex-1 overflow-y-auto bg-[#0f172a] p-6"> <!-- Updated main background -->
             <section class="glass rounded-xl p-6 content">
                 <!-- Skeleton Loader -->
                 <div class="skeleton-loader cards__inner">

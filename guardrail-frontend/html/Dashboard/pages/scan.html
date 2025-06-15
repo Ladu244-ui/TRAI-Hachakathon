@@ -253,8 +253,22 @@
         const toastMessage = document.getElementById('toastMessage');
 
         // State Management
-        let scanHistory = JSON.parse(localStorage.getItem('scanHistory')) || [];
+        let scanHistory = [];
         let isScanning = false;
+
+        // Fallback storage if localStorage fails
+        let fallbackStorage = [];
+
+        // Initialize scan history with error handling
+        try {
+            const storedHistory = localStorage.getItem('scanHistory');
+            if (storedHistory) {
+                scanHistory = JSON.parse(storedHistory);
+            }
+        } catch (e) {
+            console.warn('Failed to access localStorage for scanHistory:', e);
+            scanHistory = fallbackStorage; // Use in-memory fallback
+        }
 
         // Dummy API results with severity
         const dummyApiResults = [
@@ -326,7 +340,12 @@
             };
             scanHistory.unshift(scan);
             if (scanHistory.length > 10) scanHistory.pop();
-            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+            try {
+                localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+            } catch (e) {
+                console.warn('Failed to save to localStorage:', e);
+                fallbackStorage = scanHistory; // Update fallback storage
+            }
             updateHistoryUI();
         }
 
@@ -345,7 +364,12 @@
                     li.querySelector('button').addEventListener('click', (e) => {
                         e.stopPropagation();
                         scanHistory = scanHistory.filter(s => s.id !== scan.id);
-                        localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+                        try {
+                            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+                        } catch (e) {
+                            console.warn('Failed to update localStorage:', e);
+                            fallbackStorage = scanHistory;
+                        }
                         updateHistoryUI();
                     });
                     li.addEventListener('click', () => displayScanResults(scan));
@@ -378,7 +402,79 @@
             resultsSection.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Export report
+        // Escape LaTeX special characters
+        function escapeLatex(str) {
+            const latexSpecialChars = {
+                '&': '\\&',
+                '%': '\\%',
+                '$': '\\$',
+                '#': '\\#',
+                '_': '\\_',
+                '{': '\\{',
+                '}': '\\}',
+                '~': '\\textasciitilde{}',
+                '^': '\\textasciicircum{}',
+                '\\': '\\textbackslash{}'
+            };
+            return str.replace(/[&%$#_{}~^\\]/g, match => latexSpecialChars[match]);
+        }
+
+        // Generate LaTeX report
+        function generateLatexReport(report) {
+            const resultsTable = report.results.map(result => {
+                return `
+                    ${escapeLatex(result.endpoint)} &
+                    ${escapeLatex(result.vulnerabilities)} &
+                    ${escapeLatex(result.severity)} &
+                    ${escapeLatex(result.recommendations)} \\\\ \\hline
+                `;
+            }).join('');
+
+            return `
+\\documentclass[a4paper,11pt]{article}
+\\usepackage{geometry}
+\\geometry{margin=1in}
+\\usepackage{booktabs}
+\\usepackage{longtable}
+\\usepackage{xcolor}
+\\usepackage{titlesec}
+\\usepackage{parskip}
+\\usepackage{times}
+
+\\definecolor{titleblue}{RGB}{31,41,55}
+\\titleformat{\\section}{\\large\\bfseries\\color{titleblue}}{\\thesection}{1em}{}
+\\titleformat{\\subsection}{\\normalsize\\bfseries\\color{titleblue}}{\\thesubsection}{1em}{}
+
+\\begin{document}
+
+\\begin{center}
+    {\\Large\\bfseries Guardrail Sentinel API Security Scan Report}\\\\[0.5cm]
+    {\\normalsize Generated on: ${new Date().toLocaleString()}}
+\\end{center}
+
+\\section{Scan Details}
+\\subsection{Input}
+${escapeLatex(report.input)}
+
+\\subsection{Summary}
+${escapeLatex(report.summary)}
+
+\\section{API-Specific Results}
+\\begin{longtable}{|p{0.25\\textwidth}|p{0.25\\textwidth}|p{0.15\\textwidth}|p{0.35\\textwidth}|}
+    \\hline
+    \\textbf{API Endpoint} & \\textbf{Vulnerabilities} & \\textbf{Severity} & \\textbf{Recommendations} \\\\ \\hline
+    \\endfirsthead
+    \\hline
+    \\textbf{API Endpoint} & \\textbf{Vulnerabilities} & \\textbf{Severity} & \\textbf{Recommendations} \\\\ \\hline
+    \\endhead
+    ${resultsTable}
+\\end{longtable}
+
+\\end{document}
+            `;
+        }
+
+        // Export report as PDF
         function exportReport() {
             const report = {
                 input: reportPrompt.textContent,
@@ -390,14 +486,17 @@
                     recommendations: row.cells[3].textContent
                 }))
             };
-            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+
+            // Generate LaTeX content
+            const latexContent = generateLatexReport(report);
+            const blob = new Blob([latexContent], { type: 'text/latex' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `scan-report-${Date.now()}.json`;
+            a.download = `scan-report-${Date.now()}.tex`;
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Report exported successfully!');
+            showToast('LaTeX report exported successfully! Compile with PDFLaTeX to generate PDF.');
         }
 
         // Event Listeners
@@ -457,7 +556,12 @@
 
         clearHistoryBtn.addEventListener('click', () => {
             scanHistory = [];
-            localStorage.removeItem('scanHistory');
+            try {
+                localStorage.removeItem('scanHistory');
+            } catch (e) {
+                console.warn('Failed to clear localStorage:', e);
+            }
+            fallbackStorage = [];
             updateHistoryUI();
             showToast('Scan history cleared.');
         });
